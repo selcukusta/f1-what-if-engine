@@ -292,6 +292,7 @@ export default function Home() {
           challenge={challenge}
           onRetry={handleRetry}
           onShare={handleShare}
+          onHome={handleBackToSelect}
         />
       ) : null;
   }

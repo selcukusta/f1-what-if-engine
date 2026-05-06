@@ -44,6 +44,7 @@ const en: Translations = {
     score: "Score",
     shareButton: "Share Result",
     retryButton: "Try Again",
+    homeButton: "All Challenges",
     shareTitle: (name: string, from: number, to: number) =>
       `I got ${name} from P${from} to P${to}!`,
     shareText: "Can you beat my strategy? F1 What-If Engine",

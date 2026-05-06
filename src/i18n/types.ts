@@ -39,6 +39,7 @@ export type Translations = {
     score: string;
     shareButton: string;
     retryButton: string;
+    homeButton: string;
     shareTitle: (name: string, from: number, to: number) => string;
     shareText: string;
     linkCopied: string;

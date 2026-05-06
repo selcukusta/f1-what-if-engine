@@ -16,6 +16,7 @@ type Props = {
   challenge: Challenge;
   onRetry: () => void;
   onShare: () => void;
+  onHome: () => void;
 };
 
 const PREVIEW_COUNT = 3;
@@ -95,6 +96,7 @@ export default function ResultCard({
   challenge,
   onRetry,
   onShare,
+  onHome,
 }: Props) {
   const { t } = useI18n();
   const driver = raceData.drivers.find((d) => d.id === challenge.driverId);
@@ -187,6 +189,12 @@ export default function ResultCard({
             {t.result.retryButton}
           </button>
         </div>
+        <button
+          onClick={onHome}
+          className="mt-3 text-f1-grey text-xs font-body font-bold uppercase tracking-wider hover:text-white transition-colors"
+        >
+          {t.result.homeButton}
+        </button>
       </div>
     </div>
   );

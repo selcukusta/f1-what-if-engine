@@ -44,6 +44,7 @@ const tr: Translations = {
     score: "Puan",
     shareButton: "Sonucu Paylaş",
     retryButton: "Tekrar Dene",
+    homeButton: "Tüm Meydan Okumalar",
     shareTitle: (name: string, from: number, to: number) =>
       `${name}'i P${from}'dan P${to}'a çıkardım!`,
     shareText: "Stratejimi yenebilir misin? F1 What-If Engine",
