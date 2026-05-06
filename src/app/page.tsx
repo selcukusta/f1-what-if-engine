@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { CHALLENGES, getRaceDataForChallenge } from "@/data/challenges";
 import { Challenge, UserStrategy, SimResult } from "@/engine/types";
 import { simulateRace, computeResult } from "@/engine/simulate";
@@ -112,15 +112,38 @@ export default function Home() {
     setView(CHALLENGES.length === 1 ? "brief" : "select");
   }
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const slideWidth = el.offsetWidth;
+    const idx = Math.round(el.scrollLeft / slideWidth);
+    setActiveSlide(idx);
+  }, []);
+
+  const scrollToSlide = useCallback((idx: number) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTo({ left: idx * el.offsetWidth, behavior: "smooth" });
+  }, []);
+
   if (view === "select") {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen px-6 py-12">
         <div className="max-w-lg w-full text-center">
-          <p className="f1-label text-f1-red mb-4">F1 WHAT-IF ENGINE</p>
-          <h1 className="f1-heading text-3xl mb-8">
+          <p className="f1-label text-f1-red mb-2">F1 WHAT-IF ENGINE</p>
+          <h1 className="f1-heading text-2xl sm:text-3xl mb-6">
             {locale === "tr" ? "Bir Meydan Okuma Seç" : "Choose a Challenge"}
           </h1>
-          <div className="space-y-4">
+
+          <div
+            ref={scrollRef}
+            onScroll={handleScroll}
+            className="flex snap-x snap-mandatory overflow-x-auto scrollbar-hide gap-4 pb-4 -mx-6 px-6"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
             {CHALLENGES.map((c) => {
               const texts = c.texts[locale] ?? c.texts.en;
               const cRaceData = getRaceDataForChallenge(c);
@@ -129,27 +152,68 @@ export default function Home() {
                 <button
                   key={c.id}
                   onClick={() => handleSelectChallenge(c)}
-                  className="f1-card w-full text-left p-6 hover:border-f1-red/50 transition-colors cursor-pointer"
+                  className="snap-center shrink-0 w-[85vw] max-w-md f1-card text-left p-6 hover:border-f1-red/50 transition-colors cursor-pointer"
                 >
-                  <p className="f1-label text-f1-red text-[10px] mb-1">
+                  <p className="f1-label text-f1-red text-[10px] mb-2">
                     {cRaceData.race.name} {cRaceData.race.year}
                   </p>
-                  <p className="f1-heading text-lg mb-1">{texts.title}</p>
-                  <p className="text-f1-grey font-body text-sm mb-3">{texts.description}</p>
+                  <p className="f1-heading text-xl mb-2">{texts.title}</p>
+                  <p className="text-f1-grey font-body text-sm mb-4">{texts.description}</p>
                   {driver && (
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 mb-4">
                       <span
-                        className="inline-block w-1 h-5 rounded-sm"
+                        className="inline-block w-1.5 h-6 rounded-sm"
                         style={{ backgroundColor: driver.teamColor }}
                       />
-                      <span className="font-body text-sm text-white">{driver.name}</span>
-                      <span className="text-f1-grey text-xs">P{c.originalPosition} → P{c.targetPosition}</span>
+                      <div>
+                        <span className="font-body text-sm text-white block">{driver.name}</span>
+                        <span className="text-f1-grey text-xs">{driver.team}</span>
+                      </div>
                     </div>
                   )}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="text-center">
+                        <p className="text-[10px] text-f1-grey uppercase tracking-wider">
+                          {locale === "tr" ? "Sıralama" : "Grid"}
+                        </p>
+                        <p className="f1-number text-2xl text-f1-grey">P{c.originalPosition}</p>
+                      </div>
+                      <span className="text-f1-red text-lg">→</span>
+                      <div className="text-center">
+                        <p className="text-[10px] text-f1-grey uppercase tracking-wider">
+                          {locale === "tr" ? "Hedef" : "Target"}
+                        </p>
+                        <p className="f1-number text-2xl text-f1-gain">P{c.targetPosition}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] text-f1-grey uppercase tracking-wider mb-1">
+                        {cRaceData.race.totalLaps} {locale === "tr" ? "tur" : "laps"}
+                      </p>
+                      <p className="text-f1-red text-xs font-body font-bold uppercase tracking-wider">
+                        {locale === "tr" ? "Oyna →" : "Play →"}
+                      </p>
+                    </div>
+                  </div>
                 </button>
               );
             })}
           </div>
+
+          {CHALLENGES.length > 1 && (
+            <div className="flex justify-center gap-2 mt-4">
+              {CHALLENGES.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => scrollToSlide(i)}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    i === activeSlide ? "bg-f1-red" : "bg-white/20"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     );
