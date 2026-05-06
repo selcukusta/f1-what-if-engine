@@ -1,6 +1,11 @@
 import { Metadata } from "next";
 import { getChallengeById, getRaceDataForChallenge, CHALLENGES } from "@/data/challenges";
+import en from "@/i18n/en";
+import tr from "@/i18n/tr";
+import type { Translations } from "@/i18n/types";
 import ShareContent from "./ShareContent";
+
+const TRANSLATIONS: Record<string, Translations> = { en, tr };
 
 type Props = {
   searchParams: Promise<{
@@ -11,6 +16,7 @@ type Props = {
     s?: string;
     st?: string;
     tier?: string;
+    lang?: string;
   }>;
 };
 
@@ -18,6 +24,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const params = await searchParams;
   const from = params.f ?? "?";
   const to = params.t ?? "?";
+  const t = TRANSLATIONS[params.lang ?? "en"] ?? en;
 
   const challenge = getChallengeById(params.c ?? "") ?? CHALLENGES[0];
   const raceData = getRaceDataForChallenge(challenge);
@@ -33,21 +40,21 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   if (params.tier) ogParams.set("tier", params.tier);
   if (params.st) ogParams.set("st", params.st);
 
-  const title = `I got ${driverName} from P${from} to P${to}! | F1 What-If Engine`;
-  const description = "Can you beat my strategy? Change pit stops, change the race.";
+  const title = `${t.result.shareTitle(driverName, Number(from), Number(to))} | F1 What-If Engine`;
+  const description = t.result.shareText;
 
   return {
     title,
     description,
     openGraph: {
-      title: `I got ${driverName} from P${from} to P${to}!`,
-      description: "Can you beat my strategy? F1 What-If Engine",
+      title: t.result.shareTitle(driverName, Number(from), Number(to)),
+      description: t.result.shareText,
       images: [`/api/og?${ogParams.toString()}`],
     },
     twitter: {
       card: "summary_large_image",
-      title: `I got ${driverName} from P${from} to P${to}!`,
-      description: "Can you beat my strategy? F1 What-If Engine",
+      title: t.result.shareTitle(driverName, Number(from), Number(to)),
+      description: t.result.shareText,
       images: [`/api/og?${ogParams.toString()}`],
     },
   };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
 import { getChallengeById, getRaceDataForChallenge, CHALLENGES } from "@/data/challenges";
 import { Compound, UserStrategy } from "@/engine/types";
@@ -20,6 +20,7 @@ type Props = {
     s?: string;
     st?: string;
     tier?: string;
+    lang?: string;
   };
 };
 
@@ -51,7 +52,13 @@ function parseStrategy(st: string, totalLaps: number): UserStrategy | null {
 }
 
 export default function ShareContent({ params }: Props) {
-  const { t } = useI18n();
+  const { t, setLocale } = useI18n();
+
+  useEffect(() => {
+    if (params.lang === "tr" || params.lang === "en") {
+      setLocale(params.lang);
+    }
+  }, [params.lang, setLocale]);
 
   const challenge = useMemo(
     () => getChallengeById(params.c ?? "") ?? CHALLENGES[0],

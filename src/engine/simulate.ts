@@ -300,11 +300,11 @@ export function simulateRace(
 
 function computeButterflyEffect(
   simResults: { driverId: string; finalPosition: number }[],
-  baselineResults: { driverId: string; finalPosition: number }[],
+  actualOrder: string[],
   challengeDriverId: string,
   drivers: DriverData[],
 ): ButterflyEffect | null {
-  const baselineMap = new Map(baselineResults.map((r) => [r.driverId, r.finalPosition]));
+  const actualMap = new Map(actualOrder.map((id, i) => [id, i + 1]));
   const driverMap = new Map(drivers.map((d) => [d.id, d]));
 
   let best: ButterflyEffect | null = null;
@@ -312,9 +312,9 @@ function computeButterflyEffect(
 
   for (const result of simResults) {
     if (result.driverId === challengeDriverId) continue;
-    const baseline = baselineMap.get(result.driverId);
-    if (baseline === undefined) continue;
-    const absDelta = Math.abs(baseline - result.finalPosition);
+    const actualPos = actualMap.get(result.driverId);
+    if (actualPos === undefined) continue;
+    const absDelta = Math.abs(actualPos - result.finalPosition);
     if (absDelta > maxDelta) {
       maxDelta = absDelta;
       const driver = driverMap.get(result.driverId);
@@ -322,9 +322,9 @@ function computeButterflyEffect(
         driverId: result.driverId,
         driverName: driver?.name ?? result.driverId,
         teamColor: driver?.teamColor ?? "#fff",
-        baselinePosition: baseline,
+        baselinePosition: actualPos,
         newPosition: result.finalPosition,
-        positionDelta: baseline - result.finalPosition,
+        positionDelta: actualPos - result.finalPosition,
       };
     }
   }
@@ -340,6 +340,7 @@ export function computeResult(
   userStrategy: UserStrategy,
   challengeDriverId: string,
   drivers: DriverData[],
+  actualOrder: string[],
 ): SimResult {
   const positionsGained = originalPosition - simOutput.finalPosition;
   const timeDelta = baselineOutput.totalTimeSec - simOutput.totalTimeSec;
@@ -360,7 +361,7 @@ export function computeResult(
 
   const butterflyEffect = computeButterflyEffect(
     simOutput.allDriverResults,
-    baselineOutput.allDriverResults,
+    actualOrder,
     challengeDriverId,
     drivers,
   );

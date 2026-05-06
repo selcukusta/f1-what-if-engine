@@ -59,6 +59,7 @@ export default function Home() {
       strategy,
       challenge.driverId,
       raceData.drivers,
+      raceData.actualOrder ?? [],
     );
     setUserStrategy(strategy);
     setSimResult(result);
@@ -92,6 +93,7 @@ export default function Home() {
       s: String(simResult.score),
       st: stintSummary,
       tier: simResult.tier,
+      lang: locale,
     });
 
     const shareUrl = `${window.location.origin}/share?${params}`;

@@ -102,8 +102,11 @@ describe("calculateLapTime", () => {
   });
 });
 
+const testActualOrder = ["D1", "D2", "D3"];
+
 const testRaceData: RaceData = {
   race: { name: "Test GP", year: 2024, totalLaps: 10, pitLossSec: 20 },
+  actualOrder: testActualOrder,
   drivers: [
     {
       id: "D1",
@@ -210,7 +213,7 @@ describe("computeResult", () => {
       pitLaps: [6],
       compounds: ["soft", "hard"],
     });
-    const result = computeResult(simOutput, baselineOutput, 3, 1, strategy, "D3", testRaceData.drivers);
+    const result = computeResult(simOutput, baselineOutput, 3, 1, strategy, "D3", testRaceData.drivers, testActualOrder);
     expect(result.positionsGained).toBe(3 - result.finalPosition);
   });
 
@@ -224,7 +227,7 @@ describe("computeResult", () => {
       pitLaps: [6],
       compounds: ["soft", "hard"],
     });
-    const result = computeResult(simOutput, baselineOutput, 3, 1, strategy, "D3", testRaceData.drivers);
+    const result = computeResult(simOutput, baselineOutput, 3, 1, strategy, "D3", testRaceData.drivers, testActualOrder);
     expect(result.tier).toBeDefined();
     expect(typeof result.tier).toBe("string");
   });
@@ -239,7 +242,7 @@ describe("computeResult", () => {
       pitLaps: [6],
       compounds: ["soft", "hard"],
     });
-    const result = computeResult(simOutput, baselineOutput, 3, 1, strategy, "D3", testRaceData.drivers);
+    const result = computeResult(simOutput, baselineOutput, 3, 1, strategy, "D3", testRaceData.drivers, testActualOrder);
     expect(result.positionChanges).toBeDefined();
     expect(Array.isArray(result.positionChanges)).toBe(true);
     for (const pc of result.positionChanges) {
@@ -258,7 +261,7 @@ describe("computeResult", () => {
       pitLaps: [6],
       compounds: ["soft", "hard"],
     });
-    const result = computeResult(simOutput, baselineOutput, 3, 1, strategy, "D3", testRaceData.drivers);
+    const result = computeResult(simOutput, baselineOutput, 3, 1, strategy, "D3", testRaceData.drivers, testActualOrder);
     if (result.butterflyEffect) {
       expect(result.butterflyEffect.driverId).not.toBe("D3");
       expect(result.butterflyEffect.driverName).toBeDefined();
