@@ -122,10 +122,10 @@ const DEFAULT_STRATEGIES: Record<number, { compound: string; endLap: number }[]>
   11: [{ compound: "medium", endLap: 22 }, { compound: "hard", endLap: 57 }],
   18: [{ compound: "medium", endLap: 21 }, { compound: "soft", endLap: 37 }, { compound: "soft", endLap: 57 }],
   77: [{ compound: "medium", endLap: 6 },  { compound: "soft", endLap: 21 }, { compound: "medium", endLap: 30 }, { compound: "medium", endLap: 57 }],
-  27: [{ compound: "medium", endLap: 7 }],
-  30: [{ compound: "medium", endLap: 6 }],
-  10: [{ compound: "medium", endLap: 4 }],
-  6:  [{ compound: "medium", endLap: 4 }],
+  27: [{ compound: "medium", endLap: 22 }, { compound: "hard", endLap: 57 }],
+  30: [{ compound: "medium", endLap: 23 }, { compound: "hard", endLap: 57 }],
+  10: [{ compound: "medium", endLap: 25 }, { compound: "hard", endLap: 57 }],
+  6:  [{ compound: "medium", endLap: 24 }, { compound: "hard", endLap: 57 }],
 };
 
 const TEAMMATE_MAP: Record<number, number> = {

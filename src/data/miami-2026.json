@@ -206,8 +206,13 @@
       "defaultStrategy": [
         {
           "startLap": 1,
-          "endLap": 4,
+          "endLap": 25,
           "compound": "medium"
+        },
+        {
+          "startLap": 26,
+          "endLap": 57,
+          "compound": "hard"
         }
       ]
     },
@@ -260,12 +265,17 @@
       "teamColor": "#4781D7",
       "number": 6,
       "gridPosition": 13,
-      "basePaceSec": 94.42999999999999,
+      "basePaceSec": 94.43,
       "defaultStrategy": [
         {
           "startLap": 1,
-          "endLap": 4,
+          "endLap": 24,
           "compound": "medium"
+        },
+        {
+          "startLap": 25,
+          "endLap": 57,
+          "compound": "hard"
         }
       ]
     },
@@ -322,8 +332,13 @@
       "defaultStrategy": [
         {
           "startLap": 1,
-          "endLap": 6,
+          "endLap": 23,
           "compound": "medium"
+        },
+        {
+          "startLap": 24,
+          "endLap": 57,
+          "compound": "hard"
         }
       ]
     },
@@ -359,8 +374,13 @@
       "defaultStrategy": [
         {
           "startLap": 1,
-          "endLap": 7,
+          "endLap": 22,
           "compound": "medium"
+        },
+        {
+          "startLap": 23,
+          "endLap": 57,
+          "compound": "hard"
         }
       ]
     },
