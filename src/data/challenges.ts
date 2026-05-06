@@ -30,23 +30,23 @@ export const MONACO_2024_CHALLENGE: Challenge = {
 };
 
 export const MIAMI_2026_CHALLENGE: Challenge = {
-  id: "miami-2026-lec",
+  id: "miami-2026-nor",
   texts: {
     en: {
-      title: "The Prancing Horse Returns",
+      title: "Defend the Win",
       description:
-        "Leclerc finished P6 at Miami 2026. Can you get him to the podium?",
+        "Norris started on pole and set the fastest lap, but still lost to Antonelli. Can you keep P1?",
     },
     tr: {
-      title: "Şaha Kalkan At",
+      title: "Zaferi Koru",
       description:
-        "Leclerc, 2026 Miami'de P6 bitirdi. Onu podyuma çıkarabilir misin?",
+        "Norris pole pozisyonundan başladı ve en hızlı turu attı, ama yine de Antonelli'ye kaybetti. P1'i koruyabilir misin?",
     },
   },
   raceId: "miami-2026",
-  driverId: "LEC",
-  originalPosition: 6,
-  targetPosition: 3,
+  driverId: "NOR",
+  originalPosition: 2,
+  targetPosition: 1,
   maxPitStops: 2,
   allowedCompounds: ["soft", "medium", "hard"],
   rules: {
