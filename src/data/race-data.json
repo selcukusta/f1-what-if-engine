@@ -1,0 +1,430 @@
+{
+  "race": {
+    "name": "Monaco Grand Prix",
+    "year": 2024,
+    "totalLaps": 78,
+    "pitLossSec": 22
+  },
+  "drivers": [
+    {
+      "id": "LEC",
+      "name": "C LECLERC",
+      "team": "Ferrari",
+      "teamColor": "#E80020",
+      "number": 16,
+      "gridPosition": 1,
+      "basePaceSec": 78.483,
+      "defaultStrategy": [
+        {
+          "startLap": 1,
+          "endLap": 30,
+          "compound": "medium"
+        },
+        {
+          "startLap": 31,
+          "endLap": 78,
+          "compound": "hard"
+        }
+      ]
+    },
+    {
+      "id": "PIA",
+      "name": "O PIASTRI",
+      "team": "McLaren",
+      "teamColor": "#FF8000",
+      "number": 81,
+      "gridPosition": 2,
+      "basePaceSec": 78.449,
+      "defaultStrategy": [
+        {
+          "startLap": 1,
+          "endLap": 28,
+          "compound": "medium"
+        },
+        {
+          "startLap": 29,
+          "endLap": 78,
+          "compound": "hard"
+        }
+      ]
+    },
+    {
+      "id": "SAI",
+      "name": "C SAINZ",
+      "team": "Ferrari",
+      "teamColor": "#E80020",
+      "number": 55,
+      "gridPosition": 3,
+      "basePaceSec": 78.545,
+      "defaultStrategy": [
+        {
+          "startLap": 1,
+          "endLap": 32,
+          "compound": "medium"
+        },
+        {
+          "startLap": 33,
+          "endLap": 78,
+          "compound": "hard"
+        }
+      ]
+    },
+    {
+      "id": "NOR",
+      "name": "L NORRIS",
+      "team": "McLaren",
+      "teamColor": "#FF8000",
+      "number": 4,
+      "gridPosition": 4,
+      "basePaceSec": 78.389,
+      "defaultStrategy": [
+        {
+          "startLap": 1,
+          "endLap": 29,
+          "compound": "medium"
+        },
+        {
+          "startLap": 30,
+          "endLap": 78,
+          "compound": "hard"
+        }
+      ]
+    },
+    {
+      "id": "RUS",
+      "name": "G RUSSELL",
+      "team": "Mercedes",
+      "teamColor": "#27F4D2",
+      "number": 63,
+      "gridPosition": 5,
+      "basePaceSec": 78.526,
+      "defaultStrategy": [
+        {
+          "startLap": 1,
+          "endLap": 31,
+          "compound": "medium"
+        },
+        {
+          "startLap": 32,
+          "endLap": 78,
+          "compound": "hard"
+        }
+      ]
+    },
+    {
+      "id": "VER",
+      "name": "M VERSTAPPEN",
+      "team": "Red Bull Racing",
+      "teamColor": "#3671C6",
+      "number": 1,
+      "gridPosition": 6,
+      "basePaceSec": 78.477,
+      "defaultStrategy": [
+        {
+          "startLap": 1,
+          "endLap": 33,
+          "compound": "hard"
+        },
+        {
+          "startLap": 34,
+          "endLap": 78,
+          "compound": "medium"
+        }
+      ]
+    },
+    {
+      "id": "HAM",
+      "name": "L HAMILTON",
+      "team": "Mercedes",
+      "teamColor": "#27F4D2",
+      "number": 44,
+      "gridPosition": 7,
+      "basePaceSec": 78.371,
+      "defaultStrategy": [
+        {
+          "startLap": 1,
+          "endLap": 35,
+          "compound": "hard"
+        },
+        {
+          "startLap": 36,
+          "endLap": 78,
+          "compound": "medium"
+        }
+      ]
+    },
+    {
+      "id": "TSU",
+      "name": "Y TSUNODA",
+      "team": "RB",
+      "teamColor": "#6692FF",
+      "number": 22,
+      "gridPosition": 8,
+      "basePaceSec": 80.135,
+      "defaultStrategy": [
+        {
+          "startLap": 1,
+          "endLap": 27,
+          "compound": "medium"
+        },
+        {
+          "startLap": 28,
+          "endLap": 78,
+          "compound": "hard"
+        }
+      ]
+    },
+    {
+      "id": "ALB",
+      "name": "A ALBON",
+      "team": "Williams",
+      "teamColor": "#64C4FF",
+      "number": 23,
+      "gridPosition": 9,
+      "basePaceSec": 80.185,
+      "defaultStrategy": [
+        {
+          "startLap": 1,
+          "endLap": 35,
+          "compound": "hard"
+        },
+        {
+          "startLap": 36,
+          "endLap": 78,
+          "compound": "medium"
+        }
+      ]
+    },
+    {
+      "id": "GAS",
+      "name": "P GASLY",
+      "team": "Alpine",
+      "teamColor": "#0093cc",
+      "number": 10,
+      "gridPosition": 10,
+      "basePaceSec": 80.2,
+      "defaultStrategy": [
+        {
+          "startLap": 1,
+          "endLap": 30,
+          "compound": "medium"
+        },
+        {
+          "startLap": 31,
+          "endLap": 78,
+          "compound": "hard"
+        }
+      ]
+    },
+    {
+      "id": "OCO",
+      "name": "E OCON",
+      "team": "Alpine",
+      "teamColor": "#0093cc",
+      "number": 31,
+      "gridPosition": 11,
+      "basePaceSec": 80.4,
+      "defaultStrategy": [
+        {
+          "startLap": 1,
+          "endLap": 28,
+          "compound": "medium"
+        },
+        {
+          "startLap": 29,
+          "endLap": 78,
+          "compound": "hard"
+        }
+      ]
+    },
+    {
+      "id": "RIC",
+      "name": "D RICCIARDO",
+      "team": "RB",
+      "teamColor": "#6692FF",
+      "number": 3,
+      "gridPosition": 12,
+      "basePaceSec": 80.828,
+      "defaultStrategy": [
+        {
+          "startLap": 1,
+          "endLap": 34,
+          "compound": "hard"
+        },
+        {
+          "startLap": 35,
+          "endLap": 78,
+          "compound": "medium"
+        }
+      ]
+    },
+    {
+      "id": "STR",
+      "name": "L STROLL",
+      "team": "Aston Martin",
+      "teamColor": "#229971",
+      "number": 18,
+      "gridPosition": 13,
+      "basePaceSec": 79.789,
+      "defaultStrategy": [
+        {
+          "startLap": 1,
+          "endLap": 26,
+          "compound": "medium"
+        },
+        {
+          "startLap": 27,
+          "endLap": 78,
+          "compound": "hard"
+        }
+      ]
+    },
+    {
+      "id": "ALO",
+      "name": "F ALONSO",
+      "team": "Aston Martin",
+      "teamColor": "#229971",
+      "number": 14,
+      "gridPosition": 14,
+      "basePaceSec": 80.636,
+      "defaultStrategy": [
+        {
+          "startLap": 1,
+          "endLap": 36,
+          "compound": "hard"
+        },
+        {
+          "startLap": 37,
+          "endLap": 78,
+          "compound": "medium"
+        }
+      ]
+    },
+    {
+      "id": "SAR",
+      "name": "L SARGEANT",
+      "team": "Williams",
+      "teamColor": "#64C4FF",
+      "number": 2,
+      "gridPosition": 15,
+      "basePaceSec": 80.845,
+      "defaultStrategy": [
+        {
+          "startLap": 1,
+          "endLap": 38,
+          "compound": "hard"
+        },
+        {
+          "startLap": 39,
+          "endLap": 78,
+          "compound": "medium"
+        }
+      ]
+    },
+    {
+      "id": "PER",
+      "name": "S PEREZ",
+      "team": "Red Bull Racing",
+      "teamColor": "#3671C6",
+      "number": 11,
+      "gridPosition": 16,
+      "basePaceSec": 78.977,
+      "defaultStrategy": [
+        {
+          "startLap": 1,
+          "endLap": 31,
+          "compound": "medium"
+        },
+        {
+          "startLap": 32,
+          "endLap": 78,
+          "compound": "hard"
+        }
+      ]
+    },
+    {
+      "id": "BOT",
+      "name": "V BOTTAS",
+      "team": "Kick Sauber",
+      "teamColor": "#52e252",
+      "number": 77,
+      "gridPosition": 17,
+      "basePaceSec": 80.44,
+      "defaultStrategy": [
+        {
+          "startLap": 1,
+          "endLap": 35,
+          "compound": "hard"
+        },
+        {
+          "startLap": 36,
+          "endLap": 78,
+          "compound": "medium"
+        }
+      ]
+    },
+    {
+      "id": "ZHO",
+      "name": "G ZHOU",
+      "team": "Kick Sauber",
+      "teamColor": "#52e252",
+      "number": 24,
+      "gridPosition": 18,
+      "basePaceSec": 80.946,
+      "defaultStrategy": [
+        {
+          "startLap": 1,
+          "endLap": 29,
+          "compound": "medium"
+        },
+        {
+          "startLap": 30,
+          "endLap": 78,
+          "compound": "hard"
+        }
+      ]
+    },
+    {
+      "id": "HUL",
+      "name": "N HULKENBERG",
+      "team": "Haas F1 Team",
+      "teamColor": "#B6BABD",
+      "number": 27,
+      "gridPosition": 19,
+      "basePaceSec": 79.962,
+      "defaultStrategy": [
+        {
+          "startLap": 1,
+          "endLap": 33,
+          "compound": "hard"
+        },
+        {
+          "startLap": 34,
+          "endLap": 78,
+          "compound": "medium"
+        }
+      ]
+    },
+    {
+      "id": "MAG",
+      "name": "K MAGNUSSEN",
+      "team": "Haas F1 Team",
+      "teamColor": "#B6BABD",
+      "number": 20,
+      "gridPosition": 20,
+      "basePaceSec": 80.262,
+      "defaultStrategy": [
+        {
+          "startLap": 1,
+          "endLap": 34,
+          "compound": "hard"
+        },
+        {
+          "startLap": 35,
+          "endLap": 78,
+          "compound": "medium"
+        }
+      ]
+    }
+  ]
+}
