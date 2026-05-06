@@ -136,10 +136,10 @@ const TEAMMATE_MAP: Record<number, number> = {
 };
 
 const DNF_PACE_OFFSETS: Record<number, number> = {
-  27: 0.3,
-  30: 0.2,
-  10: 0.1,
-  6: 0.8,
+  27: 2.0,  // HUL — crashed early
+  30: 1.8,  // LAW — mechanical
+  10: 2.0,  // GAS — mechanical
+  6: 2.5,   // HAD — mechanical, rookie
 };
 
 const ACTUAL_FINISH_ORDER = [

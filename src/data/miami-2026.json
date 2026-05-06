@@ -204,7 +204,7 @@
       "teamColor": "#00A1E8",
       "number": 10,
       "gridPosition": 10,
-      "basePaceSec": 94.041,
+      "basePaceSec": 95.941,
       "defaultStrategy": [
         {
           "startLap": 1,
@@ -267,7 +267,7 @@
       "teamColor": "#4781D7",
       "number": 6,
       "gridPosition": 13,
-      "basePaceSec": 94.43,
+      "basePaceSec": 96.13,
       "defaultStrategy": [
         {
           "startLap": 1,
@@ -330,7 +330,7 @@
       "teamColor": "#6C98FF",
       "number": 30,
       "gridPosition": 16,
-      "basePaceSec": 95.271,
+      "basePaceSec": 96.871,
       "defaultStrategy": [
         {
           "startLap": 1,
@@ -372,7 +372,7 @@
       "teamColor": "#F50537",
       "number": 27,
       "gridPosition": 18,
-      "basePaceSec": 94.93,
+      "basePaceSec": 96.887,
       "defaultStrategy": [
         {
           "startLap": 1,
