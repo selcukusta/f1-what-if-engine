@@ -36,3 +36,74 @@ body {
   background-color: #15151e;
   color: #ffffff;
 }
+
+@layer components {
+  .f1-label {
+    font-family: var(--font-body);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--color-f1-grey);
+    font-size: 10px;
+  }
+
+  .f1-heading {
+    font-family: var(--font-body);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #ffffff;
+  }
+
+  .f1-number {
+    font-family: var(--font-display);
+    font-weight: 900;
+  }
+
+  .f1-button {
+    background-color: var(--color-f1-red);
+    color: #ffffff;
+    font-family: var(--font-body);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    transition: opacity 0.15s;
+    cursor: pointer;
+  }
+  .f1-button:hover {
+    opacity: 0.9;
+  }
+  .f1-button:active {
+    opacity: 0.8;
+  }
+
+  .f1-button-outline {
+    border: 1px solid rgba(151, 152, 155, 0.4);
+    color: #ffffff;
+    font-family: var(--font-body);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    transition: opacity 0.15s;
+    cursor: pointer;
+    background: transparent;
+  }
+  .f1-button-outline:hover {
+    opacity: 0.9;
+  }
+  .f1-button-outline:active {
+    opacity: 0.8;
+  }
+
+  .f1-card {
+    background-color: var(--color-f1-surface);
+    border-radius: 0.5rem;
+    padding: 1rem;
+  }
+}

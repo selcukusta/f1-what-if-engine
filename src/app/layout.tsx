@@ -19,6 +19,12 @@ const chakraPetch = Chakra_Petch({
 export const metadata: Metadata = {
   title: "F1 What-If Engine",
   description: "Change strategy, change the race outcome.",
+  metadataBase: new URL("https://f1whatif.vercel.app"),
+  openGraph: {
+    title: "F1 What-If Engine",
+    description: "Change strategy, change the race outcome.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
