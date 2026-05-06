@@ -6,10 +6,10 @@ import {
   Compound,
   RaceData,
   UserStrategy,
-  ValidationError,
 } from "@/engine/types";
 import { TIRE_CONFIG, TIRE_COLORS } from "@/engine/constants";
 import { validateStrategy } from "@/engine/validate";
+import { useI18n } from "@/i18n/context";
 import TireBar from "./TireBar";
 
 type Props = {
@@ -25,6 +25,7 @@ export default function StrategyBuilder({
   raceData,
   onSimulate,
 }: Props) {
+  const { t } = useI18n();
   const { totalLaps } = raceData.race;
   const [startCompound, setStartCompound] = useState<Compound>("soft");
   const [pit1Lap, setPit1Lap] = useState(20);
@@ -47,8 +48,8 @@ export default function StrategyBuilder({
   }, [startCompound, pit1Lap, pit1Compound, hasPit2, pit2Lap, pit2Compound]);
 
   const errors = useMemo(
-    () => validateStrategy(strategy, challenge, totalLaps),
-    [strategy, challenge, totalLaps]
+    () => validateStrategy(strategy, challenge, totalLaps, t),
+    [strategy, challenge, totalLaps, t]
   );
 
   const stints = useMemo(() => {
@@ -87,17 +88,57 @@ export default function StrategyBuilder({
             </p>
           </div>
           <p className="text-f1-grey text-sm font-body">
-            {totalLaps} laps
+            {t.challenge.laps(totalLaps)}
           </p>
         </div>
 
         <div className="mb-6">
-          <p className="f1-label mb-3">Race Timeline</p>
+          <p className="f1-label mb-3">{t.strategy.raceTimeline}</p>
           <TireBar stints={stints} totalLaps={totalLaps} />
         </div>
 
         <div className="f1-card mb-4">
-          <p className="f1-label mb-3">Starting Tire</p>
+          <p className="f1-label mb-3">{t.strategy.tireData}</p>
+          <div className="grid grid-cols-3 gap-2 text-center">
+            {COMPOUNDS.map((c) => {
+              const tire = TIRE_CONFIG[c];
+              return (
+                <div
+                  key={c}
+                  className="rounded-md py-2 px-1"
+                  style={{
+                    backgroundColor: `${TIRE_COLORS[c]}15`,
+                    borderTop: `2px solid ${TIRE_COLORS[c]}`,
+                  }}
+                >
+                  <div
+                    className="text-xs font-body font-bold uppercase mb-1"
+                    style={{ color: TIRE_COLORS[c] }}
+                  >
+                    {tire.label}
+                  </div>
+                  <div className="text-[10px] text-f1-grey font-body leading-relaxed">
+                    <div>
+                      <span className="text-white">{tire.effect > 0 ? "+" : ""}{tire.effect}s</span> {t.strategy.pace}
+                    </div>
+                    <div>
+                      <span className="text-white">+{tire.degradationPerLap}s</span>{t.strategy.lapDeg}
+                    </div>
+                    <div>
+                      <span className="text-white">{tire.lifetime}</span> {t.strategy.lapLife}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <p className="text-[9px] text-f1-grey/60 font-body mt-2 text-center">
+            {t.strategy.tireLifeWarning(raceData.race.pitLossSec)}
+          </p>
+        </div>
+
+        <div className="f1-card mb-4">
+          <p className="f1-label mb-3">{t.strategy.startingTire}</p>
           <div className="flex gap-2">
             {COMPOUNDS.map((c) => (
               <button
@@ -120,9 +161,9 @@ export default function StrategyBuilder({
         </div>
 
         <div className="f1-card mb-4">
-          <p className="f1-label mb-3">Pit Stop 1</p>
+          <p className="f1-label mb-3">{t.strategy.pitStop(1)}</p>
           <div className="flex items-center gap-4 mb-3">
-            <span className="text-sm text-f1-grey font-body">Lap:</span>
+            <span className="text-sm text-f1-grey font-body">{t.strategy.lap}:</span>
             <button
               onClick={() => setPit1Lap((l) => clampLap(l - 1, 2, totalLaps - 5))}
               className="w-8 h-8 rounded bg-f1-bg text-white font-body font-bold"
@@ -139,7 +180,7 @@ export default function StrategyBuilder({
               +
             </button>
           </div>
-          <p className="f1-label mb-2">Next Tire</p>
+          <p className="f1-label mb-2">{t.strategy.nextTire}</p>
           <div className="flex gap-2">
             {COMPOUNDS.map((c) => (
               <button
@@ -164,7 +205,7 @@ export default function StrategyBuilder({
         {challenge.maxPitStops >= 2 && (
           <div className="f1-card mb-4">
             <div className="flex items-center justify-between mb-3">
-              <p className="f1-label">Pit Stop 2</p>
+              <p className="f1-label">{t.strategy.pitStop(2)}</p>
               <button
                 onClick={() => setHasPit2(!hasPit2)}
                 className={`text-xs font-body font-bold uppercase tracking-wider px-3 py-1 rounded ${
@@ -173,14 +214,14 @@ export default function StrategyBuilder({
                     : "bg-f1-bg text-f1-grey"
                 }`}
               >
-                {hasPit2 ? "Enabled" : "Add Stop"}
+                {hasPit2 ? t.strategy.enabled : t.strategy.addStop}
               </button>
             </div>
             {hasPit2 && (
               <>
                 <div className="flex items-center gap-4 mb-3">
                   <span className="text-sm text-f1-grey font-body">
-                    Lap:
+                    {t.strategy.lap}:
                   </span>
                   <button
                     onClick={() =>
@@ -202,7 +243,7 @@ export default function StrategyBuilder({
                     +
                   </button>
                 </div>
-                <p className="f1-label mb-2">Next Tire</p>
+                <p className="f1-label mb-2">{t.strategy.nextTire}</p>
                 <div className="flex gap-2">
                   {COMPOUNDS.map((c) => (
                     <button
@@ -244,7 +285,7 @@ export default function StrategyBuilder({
             errors.length > 0 ? "opacity-40 cursor-not-allowed" : ""
           }`}
         >
-          Simulate Race →
+          {t.strategy.simulateButton}
         </button>
       </div>
     </div>

@@ -1,9 +1,13 @@
 import { Challenge, UserStrategy, ValidationError } from "./types";
+import type { Translations } from "@/i18n/types";
+
+type ValidationTranslations = Pick<Translations, "validation">;
 
 export function validateStrategy(
   strategy: UserStrategy,
   challenge: Challenge,
-  totalLaps: number
+  totalLaps: number,
+  t?: ValidationTranslations
 ): ValidationError[] {
   const errors: ValidationError[] = [];
   const { pitLaps, compounds } = strategy;
@@ -12,21 +16,27 @@ export function validateStrategy(
   if (pitLaps.length < rules.minPitStops) {
     errors.push({
       field: "pitLaps",
-      message: `At least ${rules.minPitStops} pit stop required`,
+      message: t
+        ? t.validation.minPitStops(rules.minPitStops)
+        : `At least ${rules.minPitStops} pit stop required`,
     });
   }
 
   if (pitLaps.length > maxPitStops) {
     errors.push({
       field: "pitLaps",
-      message: `Maximum ${maxPitStops} pit stops allowed`,
+      message: t
+        ? t.validation.maxPitStops(maxPitStops)
+        : `Maximum ${maxPitStops} pit stops allowed`,
     });
   }
 
   if (compounds.length !== pitLaps.length + 1) {
     errors.push({
       field: "compounds",
-      message: `Expected ${pitLaps.length + 1} compounds for ${pitLaps.length} pit stops`,
+      message: t
+        ? t.validation.compoundCount(pitLaps.length + 1, pitLaps.length)
+        : `Expected ${pitLaps.length + 1} compounds for ${pitLaps.length} pit stops`,
     });
   }
 
@@ -34,7 +44,9 @@ export function validateStrategy(
   if (uniqueCompounds.size < rules.minCompounds) {
     errors.push({
       field: "compounds",
-      message: `Must use at least ${rules.minCompounds} different compounds`,
+      message: t
+        ? t.validation.minCompounds(rules.minCompounds)
+        : `Must use at least ${rules.minCompounds} different compounds`,
     });
   }
 
@@ -42,7 +54,9 @@ export function validateStrategy(
     if (pitLaps[i] <= pitLaps[i - 1]) {
       errors.push({
         field: "pitLaps",
-        message: "Pit laps must be in ascending order",
+        message: t
+          ? t.validation.pitOrder
+          : "Pit laps must be in ascending order",
       });
       break;
     }
@@ -54,13 +68,17 @@ export function validateStrategy(
     if (lap < minLap) {
       errors.push({
         field: "pitLaps",
-        message: `Pit lap ${lap} is too early (minimum lap ${minLap})`,
+        message: t
+          ? t.validation.pitTooEarly(lap, minLap)
+          : `Pit lap ${lap} is too early (minimum lap ${minLap})`,
       });
     }
     if (lap > maxLap) {
       errors.push({
         field: "pitLaps",
-        message: `Pit lap ${lap} is too late (maximum lap ${maxLap})`,
+        message: t
+          ? t.validation.pitTooLate(lap, maxLap)
+          : `Pit lap ${lap} is too late (maximum lap ${maxLap})`,
       });
     }
   }
@@ -72,7 +90,9 @@ export function validateStrategy(
     if (stintLength < rules.minLapsBetweenStops) {
       errors.push({
         field: "pitLaps",
-        message: `Stint ${i + 1} is only ${stintLength} laps (minimum ${rules.minLapsBetweenStops})`,
+        message: t
+          ? t.validation.stintTooShort(i + 1, stintLength, rules.minLapsBetweenStops)
+          : `Stint ${i + 1} is only ${stintLength} laps (minimum ${rules.minLapsBetweenStops})`,
       });
     }
   }

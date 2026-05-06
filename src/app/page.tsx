@@ -5,6 +5,7 @@ import raceDataJson from "@/data/race-data.json";
 import { MONACO_2024_CHALLENGE } from "@/data/challenges";
 import { RaceData, UserStrategy, SimResult } from "@/engine/types";
 import { simulateRace, computeResult } from "@/engine/simulate";
+import { useI18n } from "@/i18n/context";
 import ChallengeBrief from "@/components/ChallengeBrief";
 import StrategyBuilder from "@/components/StrategyBuilder";
 import ResultCard from "@/components/ResultCard";
@@ -15,6 +16,7 @@ const challenge = MONACO_2024_CHALLENGE;
 type GameView = "brief" | "strategy" | "result";
 
 export default function Home() {
+  const { t } = useI18n();
   const [view, setView] = useState<GameView>("brief");
   const [userStrategy, setUserStrategy] = useState<UserStrategy | null>(null);
   const [simResult, setSimResult] = useState<SimResult | null>(null);
@@ -76,16 +78,17 @@ export default function Home() {
     });
 
     const shareUrl = `${window.location.origin}/share?${params}`;
+    const driverName = raceData.drivers.find((d) => d.id === challenge.driverId)?.name ?? "";
 
     if (navigator.share) {
       navigator.share({
-        title: `I got ${raceData.drivers.find((d) => d.id === challenge.driverId)?.name} from P${challenge.originalPosition} to P${simResult.finalPosition}!`,
-        text: `Can you beat my strategy? F1 What-If Engine`,
+        title: t.result.shareTitle(driverName, challenge.originalPosition, simResult.finalPosition),
+        text: t.result.shareText,
         url: shareUrl,
       });
     } else {
       navigator.clipboard.writeText(shareUrl);
-      alert("Link copied to clipboard!");
+      alert(t.result.linkCopied);
     }
   }
 

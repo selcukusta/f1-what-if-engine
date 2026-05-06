@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Orbitron, Chakra_Petch } from "next/font/google";
 import "./globals.css";
+import Providers from "./Providers";
 
 const orbitron = Orbitron({
   subsets: ["latin"],
@@ -34,7 +35,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${orbitron.variable} ${chakraPetch.variable}`}>
-      <body className="font-body antialiased min-h-screen">{children}</body>
+      <body className="font-body antialiased min-h-screen">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

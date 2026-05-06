@@ -1,6 +1,7 @@
 "use client";
 
 import { Challenge, RaceData } from "@/engine/types";
+import { useI18n } from "@/i18n/context";
 
 type Props = {
   challenge: Challenge;
@@ -13,6 +14,7 @@ export default function ChallengeBrief({
   raceData,
   onAccept,
 }: Props) {
+  const { t } = useI18n();
   const driver = raceData.drivers.find((d) => d.id === challenge.driverId);
   if (!driver) return null;
 
@@ -23,7 +25,7 @@ export default function ChallengeBrief({
           {raceData.race.name} {raceData.race.year}
         </p>
 
-        <h1 className="f1-heading text-3xl mb-2">{challenge.title}</h1>
+        <h1 className="f1-heading text-3xl mb-2">{t.challenge.title}</h1>
 
         <div className="my-8">
           <div className="f1-card inline-block px-8 py-6">
@@ -36,14 +38,14 @@ export default function ChallengeBrief({
             <div className="f1-heading text-2xl">{driver.name}</div>
             <div className="flex items-center justify-center gap-4 mt-4">
               <div>
-                <div className="f1-label mb-1">Grid</div>
+                <div className="f1-label mb-1">{t.challenge.grid}</div>
                 <div className="f1-number text-4xl text-f1-grey">
                   P{challenge.originalPosition}
                 </div>
               </div>
               <div className="text-f1-red text-2xl">→</div>
               <div>
-                <div className="f1-label mb-1">Target</div>
+                <div className="f1-label mb-1">{t.challenge.target}</div>
                 <div className="f1-number text-4xl text-f1-gain">
                   P{challenge.targetPosition}
                 </div>
@@ -53,18 +55,18 @@ export default function ChallengeBrief({
         </div>
 
         <p className="text-f1-grey font-body text-base mb-8 max-w-sm mx-auto">
-          {challenge.description}
+          {t.challenge.description}
         </p>
 
         <div className="space-y-3 text-sm text-f1-grey font-body mb-10">
           <p>
-            Max {challenge.maxPitStops} pit stops ·{" "}
-            {raceData.race.totalLaps} laps · Must use 2+ compounds
+            {t.challenge.maxPitStops(challenge.maxPitStops)} ·{" "}
+            {t.challenge.laps(raceData.race.totalLaps)} · {t.challenge.mustUseCompounds}
           </p>
         </div>
 
         <button onClick={onAccept} className="f1-button w-full max-w-xs">
-          Accept Challenge
+          {t.challenge.acceptButton}
         </button>
       </div>
     </div>

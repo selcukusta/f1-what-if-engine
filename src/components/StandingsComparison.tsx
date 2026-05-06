@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ACTUAL_RACE_ORDER } from "@/engine/constants";
 import { RaceData } from "@/engine/types";
+import { useI18n } from "@/i18n/context";
 
 type Props = {
   allDriverResults: { driverId: string; finalPosition: number }[];
@@ -15,6 +16,7 @@ export default function StandingsComparison({
   challengeDriverId,
   raceData,
 }: Props) {
+  const { t } = useI18n();
   const [expanded, setExpanded] = useState(false);
   const displayCount = expanded ? 20 : 10;
 
@@ -24,9 +26,6 @@ export default function StandingsComparison({
 
   const actualMap = new Map(
     ACTUAL_RACE_ORDER.map((d, i) => [d.id, i + 1])
-  );
-  const simMap = new Map(
-    simOrder.map((d) => [d.driverId, d.finalPosition])
   );
 
   const rows = Array.from({ length: displayCount }, (_, i) => {
@@ -55,15 +54,15 @@ export default function StandingsComparison({
 
   return (
     <div className="f1-card text-left mb-4">
-      <p className="f1-label mb-3">Actual vs Your Simulation</p>
+      <p className="f1-label mb-3">{t.standings.title}</p>
 
       <div className="overflow-hidden rounded-md">
         <table className="w-full text-sm font-body">
           <thead>
             <tr className="text-f1-grey text-[10px] uppercase tracking-wider">
               <th className="text-left py-2 px-2 w-8">P</th>
-              <th className="text-left py-2 px-2">Actual Race</th>
-              <th className="text-left py-2 px-2">Your Simulation</th>
+              <th className="text-left py-2 px-2">{t.standings.actualRace}</th>
+              <th className="text-left py-2 px-2">{t.standings.yourSimulation}</th>
               <th className="text-right py-2 px-2 w-10"></th>
             </tr>
           </thead>
@@ -131,7 +130,7 @@ export default function StandingsComparison({
           onClick={() => setExpanded(true)}
           className="w-full mt-3 py-2 text-center text-f1-grey text-xs font-body font-bold uppercase tracking-wider hover:text-white transition-colors"
         >
-          Full Classification ↓
+          {t.standings.fullClassification}
         </button>
       )}
     </div>
