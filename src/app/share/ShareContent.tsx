@@ -6,8 +6,10 @@ import raceDataJson from "@/data/race-data.json";
 import { MONACO_2024_CHALLENGE } from "@/data/challenges";
 import { RaceData, Compound, UserStrategy } from "@/engine/types";
 import { simulateRace } from "@/engine/simulate";
+import { useI18n } from "@/i18n/context";
 import ScoreBadge from "@/components/ScoreBadge";
 import StandingsComparison from "@/components/StandingsComparison";
+import PositionChart from "@/components/PositionChart";
 
 const raceData = raceDataJson as RaceData;
 const challenge = MONACO_2024_CHALLENGE;
@@ -51,18 +53,22 @@ function parseStrategy(st: string, totalLaps: number): UserStrategy | null {
 }
 
 export default function ShareContent({ params }: Props) {
+  const { t } = useI18n();
   const from = params.f ?? "?";
   const to = params.t ?? "?";
   const score = params.s ?? "0";
   const tier = params.tier ?? "Unknown";
   const positionsGained = Number(from) - Number(to);
 
+  const parsedStrategy = useMemo(
+    () => (params.st ? parseStrategy(params.st, raceData.race.totalLaps) : null),
+    [params.st]
+  );
+
   const simOutput = useMemo(() => {
-    if (!params.st) return null;
-    const strategy = parseStrategy(params.st, raceData.race.totalLaps);
-    if (!strategy) return null;
-    return simulateRace(raceData, challenge.driverId, strategy);
-  }, [params.st]);
+    if (!parsedStrategy) return null;
+    return simulateRace(raceData, challenge.driverId, parsedStrategy);
+  }, [parsedStrategy]);
 
   const gainColor =
     positionsGained > 0
@@ -74,18 +80,18 @@ export default function ShareContent({ params }: Props) {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-6 py-12">
       <div className="max-w-md w-full text-center">
-        <p className="f1-label text-f1-red mb-4">F1 What-If Engine</p>
+        <p className="f1-label text-f1-red mb-4">{t.share.heading}</p>
 
         <ScoreBadge tier={tier} />
 
         <div className="flex items-center justify-center gap-6 my-8">
           <div>
-            <p className="f1-label mb-1">Was</p>
+            <p className="f1-label mb-1">{t.result.was}</p>
             <p className="f1-number text-5xl text-f1-grey">P{from}</p>
           </div>
           <div className={`text-3xl ${gainColor}`}>→</div>
           <div>
-            <p className="f1-label mb-1">Now</p>
+            <p className="f1-label mb-1">{t.result.now}</p>
             <p className={`f1-number text-5xl ${gainColor}`}>P{to}</p>
           </div>
         </div>
@@ -96,20 +102,31 @@ export default function ShareContent({ params }: Props) {
         </p>
 
         <div className="mb-6">
-          <p className="f1-label mb-1">Score</p>
+          <p className="f1-label mb-1">{t.result.score}</p>
           <p className="f1-number text-4xl">{score}</p>
         </div>
 
         {simOutput && (
-          <StandingsComparison
-            allDriverResults={simOutput.allDriverResults}
-            challengeDriverId={challenge.driverId}
-            raceData={raceData}
-          />
+          <>
+            <StandingsComparison
+              allDriverResults={simOutput.allDriverResults}
+              challengeDriverId={challenge.driverId}
+              raceData={raceData}
+            />
+            {parsedStrategy && (
+              <PositionChart
+                allPositionsPerLap={simOutput.allPositionsPerLap}
+                challengeDriverId={challenge.driverId}
+                raceData={raceData}
+                pitLaps={parsedStrategy.pitLaps}
+                compounds={parsedStrategy.compounds}
+              />
+            )}
+          </>
         )}
 
         <Link href="/" className="f1-button inline-block mt-4">
-          Can you beat this? →
+          {t.share.beatThis}
         </Link>
       </div>
     </div>

@@ -34,12 +34,19 @@ export type UserStrategy = {
   compounds: Compound[];
 };
 
+export type PositionChangeKind =
+  | "overtake"
+  | "undercut"
+  | "overcut"
+  | "lost-position"
+  | "tire-cliff";
+
 export type PositionChange = {
   lap: number;
   newPosition: number;
   oldPosition: number;
-  overtakenDriverName: string;
-  isPitLap: boolean;
+  otherDriverName: string;
+  kind: PositionChangeKind;
 };
 
 export type SimOutput = {
@@ -49,6 +56,7 @@ export type SimOutput = {
   positionsPerLap: number[];
   positionChanges: PositionChange[];
   allDriverResults: { driverId: string; finalPosition: number }[];
+  allPositionsPerLap: { driverId: string; positions: number[] }[];
 };
 
 export type SimResult = {
@@ -59,9 +67,10 @@ export type SimResult = {
   lapTimes: number[];
   positionsPerLap: number[];
   score: number;
-  keyMoment: string;
+  positionChanges: PositionChange[];
   tier: string;
   allDriverResults: { driverId: string; finalPosition: number }[];
+  allPositionsPerLap: { driverId: string; positions: number[] }[];
 };
 
 export type Challenge = {
