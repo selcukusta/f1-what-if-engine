@@ -22,6 +22,8 @@ export type RaceInfo = {
   year: number;
   totalLaps: number;
   pitLossSec: number;
+  overtakeDelta?: number;
+  dirtyAirMargin?: number;
 };
 
 export type RaceData = {

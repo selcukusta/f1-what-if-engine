@@ -43,7 +43,9 @@ export function calculateLapTime(
   carAheadLapTime: number,
   isPitLap: boolean,
   pitLossSec: number,
-  isFirstStint: boolean
+  isFirstStint: boolean,
+  overtakeDelta: number = OVERTAKE_DELTA_REQUIRED,
+  dirtyAirMargin: number = DIRTY_AIR_MARGIN,
 ): number {
   const tire = TIRE_CONFIG[compound];
 
@@ -68,8 +70,8 @@ export function calculateLapTime(
 
   if (gapToCarAhead > 0 && gapToCarAhead < 1.5 && carAheadLapTime > 0) {
     const paceDelta = carAheadLapTime - time;
-    if (paceDelta > 0 && paceDelta < OVERTAKE_DELTA_REQUIRED) {
-      time = carAheadLapTime + DIRTY_AIR_MARGIN;
+    if (paceDelta > 0 && paceDelta < overtakeDelta) {
+      time = carAheadLapTime + dirtyAirMargin;
     }
   }
 
@@ -90,6 +92,8 @@ export function simulateRace(
   userStrategy: UserStrategy
 ): SimOutput {
   const { race, drivers } = raceData;
+  const trackOvertakeDelta = race.overtakeDelta ?? OVERTAKE_DELTA_REQUIRED;
+  const trackDirtyAirMargin = race.dirtyAirMargin ?? DIRTY_AIR_MARGIN;
 
   const strategiesMap = new Map<string, Stint[]>();
   for (const driver of drivers) {
@@ -162,7 +166,9 @@ export function simulateRace(
         carAheadLapTime,
         isPitLap,
         race.pitLossSec,
-        isFirstStint
+        isFirstStint,
+        trackOvertakeDelta,
+        trackDirtyAirMargin,
       );
 
       cumulativeTimes.set(

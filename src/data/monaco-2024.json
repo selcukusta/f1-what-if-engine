@@ -3,7 +3,9 @@
     "name": "Monaco Grand Prix",
     "year": 2024,
     "totalLaps": 78,
-    "pitLossSec": 22
+    "pitLossSec": 22,
+    "overtakeDelta": 2.0,
+    "dirtyAirMargin": 0.2
   },
   "drivers": [
     {

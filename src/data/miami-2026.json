@@ -3,7 +3,9 @@
     "name": "Miami Grand Prix",
     "year": 2026,
     "totalLaps": 57,
-    "pitLossSec": 24
+    "pitLossSec": 24,
+    "overtakeDelta": 0.8,
+    "dirtyAirMargin": 0.15
   },
   "drivers": [
     {
