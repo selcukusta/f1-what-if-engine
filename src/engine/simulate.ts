@@ -298,38 +298,58 @@ export function simulateRace(
   };
 }
 
+function buildEffect(
+  driverId: string,
+  actualPos: number,
+  simPos: number,
+  driverMap: Map<string, DriverData>,
+): ButterflyEffect {
+  const driver = driverMap.get(driverId);
+  return {
+    driverId,
+    driverName: driver?.name ?? driverId,
+    teamColor: driver?.teamColor ?? "#fff",
+    baselinePosition: actualPos,
+    newPosition: simPos,
+    positionDelta: actualPos - simPos,
+  };
+}
+
 function computeButterflyEffect(
   simResults: { driverId: string; finalPosition: number }[],
   actualOrder: string[],
   challengeDriverId: string,
   drivers: DriverData[],
+  userGainedPositions: boolean,
 ): ButterflyEffect | null {
   const actualMap = new Map(actualOrder.map((id, i) => [id, i + 1]));
   const driverMap = new Map(drivers.map((d) => [d.id, d]));
 
-  let best: ButterflyEffect | null = null;
-  let maxDelta = 0;
+  let bestCounter: ButterflyEffect | null = null;
+  let maxCounterDelta = 0;
+  let bestAny: ButterflyEffect | null = null;
+  let maxAnyDelta = 0;
 
   for (const result of simResults) {
     if (result.driverId === challengeDriverId) continue;
     const actualPos = actualMap.get(result.driverId);
     if (actualPos === undefined) continue;
-    const absDelta = Math.abs(actualPos - result.finalPosition);
-    if (absDelta > maxDelta) {
-      maxDelta = absDelta;
-      const driver = driverMap.get(result.driverId);
-      best = {
-        driverId: result.driverId,
-        driverName: driver?.name ?? result.driverId,
-        teamColor: driver?.teamColor ?? "#fff",
-        baselinePosition: actualPos,
-        newPosition: result.finalPosition,
-        positionDelta: actualPos - result.finalPosition,
-      };
+    const delta = actualPos - result.finalPosition;
+    const absDelta = Math.abs(delta);
+
+    if (absDelta > maxAnyDelta) {
+      maxAnyDelta = absDelta;
+      bestAny = buildEffect(result.driverId, actualPos, result.finalPosition, driverMap);
+    }
+
+    const isCounterStory = userGainedPositions ? delta < 0 : delta > 0;
+    if (isCounterStory && absDelta > maxCounterDelta) {
+      maxCounterDelta = absDelta;
+      bestCounter = buildEffect(result.driverId, actualPos, result.finalPosition, driverMap);
     }
   }
 
-  return best;
+  return bestCounter ?? bestAny;
 }
 
 export function computeResult(
@@ -364,6 +384,7 @@ export function computeResult(
     actualOrder,
     challengeDriverId,
     drivers,
+    positionsGained > 0,
   );
 
   return {
