@@ -198,33 +198,12 @@
       ]
     },
     {
-      "id": "GAS",
-      "name": "Pierre Gasly",
-      "team": "Alpine",
-      "teamColor": "#00A1E8",
-      "number": 10,
-      "gridPosition": 10,
-      "basePaceSec": 95.941,
-      "defaultStrategy": [
-        {
-          "startLap": 1,
-          "endLap": 25,
-          "compound": "medium"
-        },
-        {
-          "startLap": 26,
-          "endLap": 57,
-          "compound": "hard"
-        }
-      ]
-    },
-    {
       "id": "BEA",
       "name": "Oliver Bearman",
       "team": "Haas F1 Team",
       "teamColor": "#9C9FA2",
       "number": 87,
-      "gridPosition": 11,
+      "gridPosition": 10,
       "basePaceSec": 94.602,
       "defaultStrategy": [
         {
@@ -245,29 +224,8 @@
       "team": "Williams",
       "teamColor": "#1868DB",
       "number": 23,
-      "gridPosition": 12,
+      "gridPosition": 11,
       "basePaceSec": 94.366,
-      "defaultStrategy": [
-        {
-          "startLap": 1,
-          "endLap": 24,
-          "compound": "medium"
-        },
-        {
-          "startLap": 25,
-          "endLap": 57,
-          "compound": "hard"
-        }
-      ]
-    },
-    {
-      "id": "HAD",
-      "name": "Isack Hadjar",
-      "team": "Red Bull Racing",
-      "teamColor": "#4781D7",
-      "number": 6,
-      "gridPosition": 13,
-      "basePaceSec": 96.13,
       "defaultStrategy": [
         {
           "startLap": 1,
@@ -287,7 +245,7 @@
       "team": "Haas F1 Team",
       "teamColor": "#9C9FA2",
       "number": 31,
-      "gridPosition": 14,
+      "gridPosition": 12,
       "basePaceSec": 94.914,
       "defaultStrategy": [
         {
@@ -308,7 +266,7 @@
       "team": "Audi",
       "teamColor": "#F50537",
       "number": 5,
-      "gridPosition": 15,
+      "gridPosition": 13,
       "basePaceSec": 94.887,
       "defaultStrategy": [
         {
@@ -324,33 +282,12 @@
       ]
     },
     {
-      "id": "LAW",
-      "name": "Liam Lawson",
-      "team": "Racing Bulls",
-      "teamColor": "#6C98FF",
-      "number": 30,
-      "gridPosition": 16,
-      "basePaceSec": 96.871,
-      "defaultStrategy": [
-        {
-          "startLap": 1,
-          "endLap": 23,
-          "compound": "medium"
-        },
-        {
-          "startLap": 24,
-          "endLap": 57,
-          "compound": "hard"
-        }
-      ]
-    },
-    {
       "id": "LIN",
       "name": "Arvid Lindblad",
       "team": "Racing Bulls",
       "teamColor": "#6C98FF",
       "number": 41,
-      "gridPosition": 17,
+      "gridPosition": 14,
       "basePaceSec": 95.071,
       "defaultStrategy": [
         {
@@ -366,33 +303,12 @@
       ]
     },
     {
-      "id": "HUL",
-      "name": "Nico Hulkenberg",
-      "team": "Audi",
-      "teamColor": "#F50537",
-      "number": 27,
-      "gridPosition": 18,
-      "basePaceSec": 96.887,
-      "defaultStrategy": [
-        {
-          "startLap": 1,
-          "endLap": 22,
-          "compound": "medium"
-        },
-        {
-          "startLap": 23,
-          "endLap": 57,
-          "compound": "hard"
-        }
-      ]
-    },
-    {
       "id": "ALO",
       "name": "Fernando Alonso",
       "team": "Aston Martin",
       "teamColor": "#229971",
       "number": 14,
-      "gridPosition": 19,
+      "gridPosition": 15,
       "basePaceSec": 96.387,
       "defaultStrategy": [
         {
@@ -413,7 +329,7 @@
       "team": "Aston Martin",
       "teamColor": "#229971",
       "number": 18,
-      "gridPosition": 20,
+      "gridPosition": 16,
       "basePaceSec": 95.773,
       "defaultStrategy": [
         {
@@ -439,7 +355,7 @@
       "team": "Cadillac",
       "teamColor": "#909090",
       "number": 11,
-      "gridPosition": 21,
+      "gridPosition": 17,
       "basePaceSec": 96.405,
       "defaultStrategy": [
         {
@@ -460,7 +376,7 @@
       "team": "Cadillac",
       "teamColor": "#909090",
       "number": 77,
-      "gridPosition": 22,
+      "gridPosition": 18,
       "basePaceSec": 97.618,
       "defaultStrategy": [
         {
@@ -484,6 +400,50 @@
           "compound": "medium"
         }
       ]
+    },
+    {
+      "id": "HUL",
+      "name": "Nico Hulkenberg",
+      "team": "Audi",
+      "teamColor": "#F50537",
+      "number": 27,
+      "gridPosition": 18,
+      "basePaceSec": 0,
+      "defaultStrategy": [],
+      "dnf": true
+    },
+    {
+      "id": "LAW",
+      "name": "Liam Lawson",
+      "team": "Racing Bulls",
+      "teamColor": "#6C98FF",
+      "number": 30,
+      "gridPosition": 16,
+      "basePaceSec": 0,
+      "defaultStrategy": [],
+      "dnf": true
+    },
+    {
+      "id": "GAS",
+      "name": "Pierre Gasly",
+      "team": "Alpine",
+      "teamColor": "#00A1E8",
+      "number": 10,
+      "gridPosition": 10,
+      "basePaceSec": 0,
+      "defaultStrategy": [],
+      "dnf": true
+    },
+    {
+      "id": "HAD",
+      "name": "Isack Hadjar",
+      "team": "Red Bull Racing",
+      "teamColor": "#4781D7",
+      "number": 6,
+      "gridPosition": 13,
+      "basePaceSec": 0,
+      "defaultStrategy": [],
+      "dnf": true
     }
   ],
   "actualOrder": [

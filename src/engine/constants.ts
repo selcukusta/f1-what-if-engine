@@ -46,22 +46,24 @@ export const TRAFFIC_THRESHOLDS = [
   { maxGap: 3.0, penalty: 0.3 },
 ];
 
-export const TIER_RANGES: { key: string; minPosition: number; maxPosition: number }[] = [
-  { key: "legendary", minPosition: 1, maxPosition: 1 },
-  { key: "excellent", minPosition: 2, maxPosition: 2 },
-  { key: "target", minPosition: 3, maxPosition: 3 },
-  { key: "improved", minPosition: 4, maxPosition: 5 },
-  { key: "unchanged", minPosition: 6, maxPosition: 6 },
-  { key: "worse", minPosition: 7, maxPosition: 20 },
-];
-
-export function getTierForPosition(position: number): string {
-  for (const tier of TIER_RANGES) {
-    if (position >= tier.minPosition && position <= tier.maxPosition) {
-      return tier.key;
-    }
+export function getTierForResult(
+  finalPosition: number,
+  originalPosition: number,
+  targetPosition: number,
+): string {
+  if (finalPosition <= targetPosition) {
+    if (finalPosition < targetPosition) return "legendary";
+    return "target";
   }
-  return "worse";
+  const gained = originalPosition - finalPosition;
+  const needed = originalPosition - targetPosition;
+  if (gained <= 0) {
+    return finalPosition > originalPosition ? "worse" : "unchanged";
+  }
+  const ratio = gained / needed;
+  if (ratio >= 0.8) return "excellent";
+  if (ratio >= 0.4) return "improved";
+  return "unchanged";
 }
 
 export const TEAM_COLORS: Record<string, string> = {

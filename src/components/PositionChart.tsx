@@ -61,6 +61,7 @@ function buildPitMap(
   const result = new Map<string, Map<number, PitInfo>>();
 
   for (const driver of raceData.drivers) {
+    if (driver.dnf) continue;
     const map = new Map<number, PitInfo>();
     if (driver.id === challengeDriverId) {
       map.set(1, { compound: compounds[0] });

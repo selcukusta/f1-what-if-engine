@@ -55,6 +55,7 @@ export default function Home() {
       output,
       baselineOutput,
       challenge.originalPosition,
+      challenge.targetPosition,
       strategy
     );
     setUserStrategy(strategy);

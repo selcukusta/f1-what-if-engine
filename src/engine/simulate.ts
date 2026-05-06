@@ -16,7 +16,7 @@ import {
   DIRTY_AIR_DEG_MULTIPLIER,
   DIRTY_AIR_MARGIN,
   OVERTAKE_DELTA_REQUIRED,
-  getTierForPosition,
+  getTierForResult,
 } from "./constants";
 
 export function userStrategyToStints(
@@ -95,8 +95,10 @@ export function simulateRace(
   const trackOvertakeDelta = race.overtakeDelta ?? OVERTAKE_DELTA_REQUIRED;
   const trackDirtyAirMargin = race.dirtyAirMargin ?? DIRTY_AIR_MARGIN;
 
+  const activeDrivers = drivers.filter((d) => !d.dnf);
+
   const strategiesMap = new Map<string, Stint[]>();
-  for (const driver of drivers) {
+  for (const driver of activeDrivers) {
     if (driver.id === challengeDriverId) {
       strategiesMap.set(
         driver.id,
@@ -110,7 +112,7 @@ export function simulateRace(
   const cumulativeTimes = new Map<string, number>();
   const allLapTimes = new Map<string, number[]>();
   const lastLapTime = new Map<string, number>();
-  for (const driver of drivers) {
+  for (const driver of activeDrivers) {
     cumulativeTimes.set(driver.id, 0);
     allLapTimes.set(driver.id, []);
     lastLapTime.set(driver.id, 0);
@@ -118,23 +120,23 @@ export function simulateRace(
 
   const challengePositionsPerLap: number[] = [];
   const driverPositionsPerLap = new Map<string, number[]>();
-  for (const driver of drivers) {
+  for (const driver of activeDrivers) {
     driverPositionsPerLap.set(driver.id, []);
   }
   const positionChanges: PositionChange[] = [];
-  let prevChallengePosition = drivers.find(
+  let prevChallengePosition = activeDrivers.find(
     (d) => d.id === challengeDriverId
   )!.gridPosition;
 
   for (let lap = 1; lap <= race.totalLaps; lap++) {
-    const sorted = [...drivers].sort(
+    const sorted = [...activeDrivers].sort(
       (a, b) => cumulativeTimes.get(a.id)! - cumulativeTimes.get(b.id)!
     );
 
     const positionMap = new Map<string, number>();
     sorted.forEach((d, i) => positionMap.set(d.id, i + 1));
 
-    for (const driver of drivers) {
+    for (const driver of activeDrivers) {
       const stints = strategiesMap.get(driver.id)!;
       const currentStint = findCurrentStint(stints, lap);
       if (!currentStint) continue;
@@ -179,7 +181,7 @@ export function simulateRace(
       lastLapTime.set(driver.id, lapTime);
     }
 
-    const sortedAfterLap = [...drivers].sort(
+    const sortedAfterLap = [...activeDrivers].sort(
       (a, b) => cumulativeTimes.get(a.id)! - cumulativeTimes.get(b.id)!
     );
     const challengePosition =
@@ -257,7 +259,7 @@ export function simulateRace(
     }
   }
 
-  const finalSorted = [...drivers].sort(
+  const finalSorted = [...activeDrivers].sort(
     (a, b) => cumulativeTimes.get(a.id)! - cumulativeTimes.get(b.id)!
   );
   const finalPosition =
@@ -268,7 +270,7 @@ export function simulateRace(
     finalPosition: i + 1,
   }));
 
-  const allPositionsPerLap = drivers.map((d) => ({
+  const allPositionsPerLap = activeDrivers.map((d) => ({
     driverId: d.id,
     positions: driverPositionsPerLap.get(d.id)!,
   }));
@@ -288,6 +290,7 @@ export function computeResult(
   simOutput: SimOutput,
   baselineOutput: SimOutput,
   originalPosition: number,
+  targetPosition: number,
   userStrategy: UserStrategy
 ): SimResult {
   const positionsGained = originalPosition - simOutput.finalPosition;
@@ -296,7 +299,7 @@ export function computeResult(
     positionsGained * 100 + timeDelta * 10 - userStrategy.pitLaps.length * 50
   );
 
-  const tier = getTierForPosition(simOutput.finalPosition);
+  const tier = getTierForResult(simOutput.finalPosition, originalPosition, targetPosition);
 
   const byLap = new Map<number, PositionChange>();
   for (const pc of simOutput.positionChanges) {

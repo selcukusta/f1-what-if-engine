@@ -202,7 +202,7 @@ describe("computeResult", () => {
       pitLaps: [6],
       compounds: ["soft", "hard"],
     });
-    const result = computeResult(simOutput, baselineOutput, 3, strategy);
+    const result = computeResult(simOutput, baselineOutput, 3, 1, strategy);
     expect(result.positionsGained).toBe(3 - result.finalPosition);
   });
 
@@ -216,7 +216,7 @@ describe("computeResult", () => {
       pitLaps: [6],
       compounds: ["soft", "hard"],
     });
-    const result = computeResult(simOutput, baselineOutput, 3, strategy);
+    const result = computeResult(simOutput, baselineOutput, 3, 1, strategy);
     expect(result.tier).toBeDefined();
     expect(typeof result.tier).toBe("string");
   });
@@ -231,7 +231,7 @@ describe("computeResult", () => {
       pitLaps: [6],
       compounds: ["soft", "hard"],
     });
-    const result = computeResult(simOutput, baselineOutput, 3, strategy);
+    const result = computeResult(simOutput, baselineOutput, 3, 1, strategy);
     expect(result.positionChanges).toBeDefined();
     expect(Array.isArray(result.positionChanges)).toBe(true);
     for (const pc of result.positionChanges) {

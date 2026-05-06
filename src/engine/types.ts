@@ -15,6 +15,7 @@ export type DriverData = {
   gridPosition: number;
   basePaceSec: number;
   defaultStrategy: Stint[];
+  dnf?: boolean;
 };
 
 export type RaceInfo = {

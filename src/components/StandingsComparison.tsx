@@ -20,13 +20,19 @@ export default function StandingsComparison({
 
   const actualOrderDrivers = useMemo(() => {
     if (raceData.actualOrder) {
-      return raceData.actualOrder.map(
-        (id) => raceData.drivers.find((d) => d.id === id)!
-      ).filter(Boolean);
+      return raceData.actualOrder
+        .map((id) => raceData.drivers.find((d) => d.id === id)!)
+        .filter(Boolean);
     }
     return [...raceData.drivers].sort((a, b) => a.gridPosition - b.gridPosition);
   }, [raceData]);
 
+  const dnfIds = useMemo(
+    () => new Set(raceData.drivers.filter((d) => d.dnf).map((d) => d.id)),
+    [raceData]
+  );
+
+  const finisherCount = actualOrderDrivers.filter((d) => !dnfIds.has(d.id)).length;
   const driverCount = actualOrderDrivers.length;
   const displayCount = expanded ? driverCount : Math.min(10, driverCount);
 
@@ -35,26 +41,31 @@ export default function StandingsComparison({
   );
 
   const actualMap = new Map(
-    actualOrderDrivers.map((d, i) => [d.id, i + 1])
+    actualOrderDrivers
+      .filter((d) => !dnfIds.has(d.id))
+      .map((d, i) => [d.id, i + 1])
   );
 
   const rows = Array.from({ length: displayCount }, (_, i) => {
     const pos = i + 1;
-
     const actualDriver = actualOrderDrivers[i];
+    const isDnf = dnfIds.has(actualDriver?.id ?? "");
 
-    const simEntry = simOrder.find((d) => d.finalPosition === pos);
+    const simEntry = pos <= finisherCount
+      ? simOrder.find((d) => d.finalPosition === pos)
+      : undefined;
     const simDriverId = simEntry?.driverId ?? "";
     const simDriverData = raceData.drivers.find((d) => d.id === simDriverId);
 
     const actualPosOfSimDriver = actualMap.get(simDriverId) ?? 0;
-    const delta = actualPosOfSimDriver - pos;
+    const delta = !isDnf && simDriverId ? actualPosOfSimDriver - pos : 0;
 
     return {
       pos,
       actualId: actualDriver?.id ?? "",
       actualName: actualDriver?.name ?? "",
       actualTeamColor: actualDriver?.teamColor ?? "#fff",
+      isDnf,
       simId: simDriverId,
       simName: simDriverData?.name ?? "",
       simTeamColor: simDriverData?.teamColor ?? "#fff",
@@ -87,7 +98,7 @@ export default function StandingsComparison({
                   }`}
                 >
                   <td className="py-2 px-2 f1-number text-f1-grey text-xs">
-                    {row.pos}
+                    {row.isDnf ? "DNF" : row.pos}
                   </td>
                   <td className="py-2 px-2">
                     <span
@@ -98,6 +109,8 @@ export default function StandingsComparison({
                       className={`text-xs align-middle ${
                         row.actualId === challengeDriverId
                           ? "text-white font-bold"
+                          : row.isDnf
+                          ? "text-f1-grey/50"
                           : "text-f1-grey"
                       }`}
                     >
@@ -105,17 +118,23 @@ export default function StandingsComparison({
                     </span>
                   </td>
                   <td className="py-2 px-2">
-                    <span
-                      className="inline-block w-1 h-4 rounded-sm mr-2 align-middle"
-                      style={{ backgroundColor: row.simTeamColor }}
-                    />
-                    <span
-                      className={`text-xs align-middle ${
-                        isChallenge ? "text-white font-bold" : "text-f1-grey"
-                      }`}
-                    >
-                      {row.simName}
-                    </span>
+                    {row.isDnf ? (
+                      <span className="text-xs text-f1-grey/50">DNF</span>
+                    ) : (
+                      <>
+                        <span
+                          className="inline-block w-1 h-4 rounded-sm mr-2 align-middle"
+                          style={{ backgroundColor: row.simTeamColor }}
+                        />
+                        <span
+                          className={`text-xs align-middle ${
+                            isChallenge ? "text-white font-bold" : "text-f1-grey"
+                          }`}
+                        >
+                          {row.simName}
+                        </span>
+                      </>
+                    )}
                   </td>
                   <td className="py-2 px-2 text-right">
                     {row.delta !== 0 && (
