@@ -199,15 +199,34 @@ async function main() {
         const num = parseInt(numStr);
         const apiDriver = uniqueDrivers.get(num);
         const strat = DEFAULT_STRATEGIES[num];
+        const totalLaps = 78;
         const stints = [];
         let startLap = 1;
         for (const s of strat) {
           stints.push({
             startLap,
-            endLap: s.endLap,
+            endLap: Math.min(s.endLap, totalLaps),
             compound: s.compound.toLowerCase(),
           });
           startLap = s.endLap + 1;
+        }
+
+        const lastStint = stints[stints.length - 1];
+        if (lastStint.endLap < totalLaps) {
+          if (stints.length === 1) {
+            const firstCompound = lastStint.compound;
+            const secondCompound = firstCompound === "hard" ? "medium" : "hard";
+            const midLap = Math.round(totalLaps * 0.4);
+            lastStint.endLap = midLap;
+            stints.push({
+              startLap: midLap + 1,
+              endLap: totalLaps,
+              compound: secondCompound,
+            });
+          } else {
+            lastStint.endLap = totalLaps;
+          }
+          console.log(`  Extended strategy for driver ${num} to cover full race`);
         }
 
         return {

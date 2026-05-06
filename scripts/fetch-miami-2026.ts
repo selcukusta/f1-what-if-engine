@@ -218,6 +218,24 @@ async function main() {
         startLap = s.endLap + 1;
       }
 
+      const lastStint = driverStints[driverStints.length - 1];
+      if (lastStint.endLap < TOTAL_LAPS) {
+        if (driverStints.length === 1) {
+          const firstCompound = lastStint.compound;
+          const secondCompound = firstCompound === "hard" ? "medium" : "hard";
+          const midLap = Math.round(TOTAL_LAPS * 0.4);
+          lastStint.endLap = midLap;
+          driverStints.push({
+            startLap: midLap + 1,
+            endLap: TOTAL_LAPS,
+            compound: secondCompound,
+          });
+        } else {
+          lastStint.endLap = TOTAL_LAPS;
+        }
+        console.log(`  Extended strategy for driver ${num} to cover full race`);
+      }
+
       return {
         id: apiDriver?.name_acronym ?? `D${num}`,
         name: apiDriver?.full_name
