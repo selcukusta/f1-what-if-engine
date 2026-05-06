@@ -11,9 +11,6 @@ const tr: Translations = {
     maxPitStops: (n: number) => `Maksimum ${n} pit stop`,
     laps: (n: number) => `${n} tur`,
     mustUseCompounds: "En az 2 farklı lastik kullanılmalı",
-    description:
-      "Verstappen, 2024 Monako'da P6 bitirdi. Onu podyuma çıkarabilir misin?",
-    title: "Şampiyonu Kurtar",
   },
 
   strategy: {

@@ -27,6 +27,7 @@ export type RaceInfo = {
 export type RaceData = {
   race: RaceInfo;
   drivers: DriverData[];
+  actualOrder?: string[];
 };
 
 export type UserStrategy = {
@@ -73,10 +74,14 @@ export type SimResult = {
   allPositionsPerLap: { driverId: string; positions: number[] }[];
 };
 
-export type Challenge = {
-  id: string;
+export type ChallengeTexts = {
   title: string;
   description: string;
+};
+
+export type Challenge = {
+  id: string;
+  texts: Record<string, ChallengeTexts>;
   raceId: string;
   driverId: string;
   originalPosition: number;

@@ -4,8 +4,7 @@ import { Challenge, UserStrategy } from "@/engine/types";
 
 const challenge: Challenge = {
   id: "test",
-  title: "Test",
-  description: "Test",
+  texts: { en: { title: "Test", description: "Test" } },
   raceId: "test",
   driverId: "VER",
   originalPosition: 6,

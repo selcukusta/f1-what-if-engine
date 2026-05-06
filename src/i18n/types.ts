@@ -9,8 +9,6 @@ export type Translations = {
     maxPitStops: (n: number) => string;
     laps: (n: number) => string;
     mustUseCompounds: string;
-    description: string;
-    title: string;
   };
 
   strategy: {

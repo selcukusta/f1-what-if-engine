@@ -14,9 +14,10 @@ export default function ChallengeBrief({
   raceData,
   onAccept,
 }: Props) {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const driver = raceData.drivers.find((d) => d.id === challenge.driverId);
   if (!driver) return null;
+  const texts = challenge.texts[locale] ?? challenge.texts.en;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-6 py-12">
@@ -25,7 +26,7 @@ export default function ChallengeBrief({
           {raceData.race.name} {raceData.race.year}
         </p>
 
-        <h1 className="f1-heading text-3xl mb-2">{t.challenge.title}</h1>
+        <h1 className="f1-heading text-3xl mb-2">{texts.title}</h1>
 
         <div className="my-8">
           <div className="f1-card inline-block px-8 py-6">
@@ -55,7 +56,7 @@ export default function ChallengeBrief({
         </div>
 
         <p className="text-f1-grey font-body text-base mb-8 max-w-sm mx-auto">
-          {t.challenge.description}
+          {texts.description}
         </p>
 
         <div className="space-y-3 text-sm text-f1-grey font-body mb-10">

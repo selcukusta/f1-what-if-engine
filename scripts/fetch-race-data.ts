@@ -181,6 +181,11 @@ async function main() {
     }
   }
 
+  const ACTUAL_FINISH_ORDER = [
+    16, 81, 55, 4, 63, 1, 44, 22, 23, 10,
+    14, 3, 77, 18, 2, 24, 31, 11, 27, 20,
+  ];
+
   const raceData = {
     race: {
       name: "Monaco Grand Prix",
@@ -223,9 +228,12 @@ async function main() {
           defaultStrategy: stints,
         };
       }),
+    actualOrder: ACTUAL_FINISH_ORDER.map(
+      (num) => uniqueDrivers.get(num)?.name_acronym ?? `D${num}`
+    ),
   };
 
-  const outPath = new URL("../src/data/race-data.json", import.meta.url);
+  const outPath = new URL("../src/data/monaco-2024.json", import.meta.url);
   const { writeFileSync, mkdirSync } = await import("fs");
   const { dirname } = await import("path");
   const { fileURLToPath } = await import("url");

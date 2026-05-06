@@ -25,7 +25,7 @@ export default function StrategyBuilder({
   raceData,
   onSimulate,
 }: Props) {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const { totalLaps } = raceData.race;
   const [startCompound, setStartCompound] = useState<Compound>("soft");
   const [pit1Lap, setPit1Lap] = useState(20);
@@ -80,7 +80,7 @@ export default function StrategyBuilder({
         <div className="flex justify-between items-center mb-6">
           <div>
             <p className="f1-label text-f1-red mb-1">
-              {challenge.title}
+              {(challenge.texts[locale] ?? challenge.texts.en).title}
             </p>
             <p className="f1-heading text-lg">
               {driver?.name} — P{challenge.originalPosition} → P

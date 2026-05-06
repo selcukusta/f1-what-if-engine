@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { ACTUAL_RACE_ORDER } from "@/engine/constants";
+import { useState, useMemo } from "react";
 import { RaceData } from "@/engine/types";
 import { useI18n } from "@/i18n/context";
 
@@ -18,20 +17,31 @@ export default function StandingsComparison({
 }: Props) {
   const { t } = useI18n();
   const [expanded, setExpanded] = useState(false);
-  const displayCount = expanded ? 20 : 10;
+
+  const actualOrderDrivers = useMemo(() => {
+    if (raceData.actualOrder) {
+      return raceData.actualOrder.map(
+        (id) => raceData.drivers.find((d) => d.id === id)!
+      ).filter(Boolean);
+    }
+    return [...raceData.drivers].sort((a, b) => a.gridPosition - b.gridPosition);
+  }, [raceData]);
+
+  const driverCount = actualOrderDrivers.length;
+  const displayCount = expanded ? driverCount : Math.min(10, driverCount);
 
   const simOrder = [...allDriverResults].sort(
     (a, b) => a.finalPosition - b.finalPosition
   );
 
   const actualMap = new Map(
-    ACTUAL_RACE_ORDER.map((d, i) => [d.id, i + 1])
+    actualOrderDrivers.map((d, i) => [d.id, i + 1])
   );
 
   const rows = Array.from({ length: displayCount }, (_, i) => {
     const pos = i + 1;
 
-    const actualDriver = ACTUAL_RACE_ORDER[i];
+    const actualDriver = actualOrderDrivers[i];
 
     const simEntry = simOrder.find((d) => d.finalPosition === pos);
     const simDriverId = simEntry?.driverId ?? "";

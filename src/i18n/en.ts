@@ -11,9 +11,6 @@ const en: Translations = {
     maxPitStops: (n: number) => `Max ${n} pit stops`,
     laps: (n: number) => `${n} laps`,
     mustUseCompounds: "Must use 2+ compounds",
-    description:
-      "Verstappen finished P6 at Monaco 2024. Can you get him to the podium?",
-    title: "Rescue the Champion",
   },
 
   strategy: {

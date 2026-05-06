@@ -2,20 +2,17 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
-import raceDataJson from "@/data/race-data.json";
-import { MONACO_2024_CHALLENGE } from "@/data/challenges";
-import { RaceData, Compound, UserStrategy } from "@/engine/types";
+import { getChallengeById, getRaceDataForChallenge, CHALLENGES } from "@/data/challenges";
+import { Compound, UserStrategy } from "@/engine/types";
 import { simulateRace } from "@/engine/simulate";
 import { useI18n } from "@/i18n/context";
 import ScoreBadge from "@/components/ScoreBadge";
 import StandingsComparison from "@/components/StandingsComparison";
 import PositionChart from "@/components/PositionChart";
 
-const raceData = raceDataJson as RaceData;
-const challenge = MONACO_2024_CHALLENGE;
-
 type Props = {
   params: {
+    c?: string;
     d?: string;
     f?: string;
     t?: string;
@@ -54,21 +51,36 @@ function parseStrategy(st: string, totalLaps: number): UserStrategy | null {
 
 export default function ShareContent({ params }: Props) {
   const { t } = useI18n();
+
+  const challenge = useMemo(
+    () => getChallengeById(params.c ?? "") ?? CHALLENGES[0],
+    [params.c]
+  );
+  const raceData = useMemo(
+    () => getRaceDataForChallenge(challenge),
+    [challenge]
+  );
+
   const from = params.f ?? "?";
   const to = params.t ?? "?";
   const score = params.s ?? "0";
   const tier = params.tier ?? "Unknown";
   const positionsGained = Number(from) - Number(to);
 
+  const driver = useMemo(
+    () => raceData.drivers.find((d) => d.id === challenge.driverId),
+    [raceData, challenge]
+  );
+
   const parsedStrategy = useMemo(
     () => (params.st ? parseStrategy(params.st, raceData.race.totalLaps) : null),
-    [params.st]
+    [params.st, raceData.race.totalLaps]
   );
 
   const simOutput = useMemo(() => {
     if (!parsedStrategy) return null;
     return simulateRace(raceData, challenge.driverId, parsedStrategy);
-  }, [parsedStrategy]);
+  }, [parsedStrategy, raceData, challenge.driverId]);
 
   const gainColor =
     positionsGained > 0
@@ -96,9 +108,9 @@ export default function ShareContent({ params }: Props) {
           </div>
         </div>
 
-        <p className="f1-heading text-lg mb-2">Max Verstappen</p>
+        <p className="f1-heading text-lg mb-2">{driver?.name ?? "Unknown"}</p>
         <p className="text-f1-grey text-sm font-body mb-4">
-          Monaco Grand Prix 2024
+          {raceData.race.name} {raceData.race.year}
         </p>
 
         <div className="mb-6">

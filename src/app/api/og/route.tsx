@@ -1,12 +1,22 @@
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
+import { getChallengeById, getRaceDataForChallenge, CHALLENGES } from "@/data/challenges";
 
 export const runtime = "edge";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
-  const from = searchParams.get("f") ?? "6";
-  const to = searchParams.get("t") ?? "6";
+  const challengeId = searchParams.get("c") ?? "";
+  const challenge = getChallengeById(challengeId) ?? CHALLENGES[0];
+  const raceData = getRaceDataForChallenge(challenge);
+  const driver = raceData.drivers.find((d) => d.id === challenge.driverId);
+  const driverName = driver?.name ?? "Driver";
+  const driverTeamColor = driver?.teamColor ?? "#3671C6";
+  const driverNumber = driver?.number ?? 1;
+  const raceName = `${raceData.race.name.toUpperCase().replace("GRAND PRIX", "GP")} ${raceData.race.year}`;
+
+  const from = searchParams.get("f") ?? String(challenge.originalPosition);
+  const to = searchParams.get("t") ?? String(challenge.originalPosition);
   const score = searchParams.get("s") ?? "0";
   const tier = searchParams.get("tier") ?? "";
   const stStrategy = searchParams.get("st") ?? "";
@@ -108,14 +118,14 @@ export async function GET(request: NextRequest) {
               textTransform: "uppercase" as const,
             }}
           >
-            MONACO GP 2024
+            {raceName}
           </span>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
           <div
             style={{
-              border: "3px solid #3671C6",
+              border: `3px solid ${driverTeamColor}`,
               borderRadius: "16px",
               padding: "20px 32px",
               textAlign: "center",
@@ -126,13 +136,13 @@ export async function GET(request: NextRequest) {
           >
             <span
               style={{
-                color: "#3671C6",
+                color: driverTeamColor,
                 fontSize: "48px",
                 fontWeight: 900,
                 fontFamily: "Orbitron",
               }}
             >
-              1
+              {driverNumber}
             </span>
             <span
               style={{
@@ -142,7 +152,7 @@ export async function GET(request: NextRequest) {
                 marginTop: "4px",
               }}
             >
-              VER
+              {challenge.driverId}
             </span>
           </div>
 
@@ -155,11 +165,11 @@ export async function GET(request: NextRequest) {
                 textTransform: "uppercase" as const,
               }}
             >
-              Max Verstappen
+              {driverName}
             </span>
             <span
               style={{
-                color: "#3671C6",
+                color: driverTeamColor,
                 fontSize: "14px",
                 fontWeight: 700,
                 textTransform: "uppercase" as const,
@@ -167,7 +177,7 @@ export async function GET(request: NextRequest) {
                 marginTop: "4px",
               }}
             >
-              Oracle Red Bull Racing
+              {driver?.team ?? ""}
             </span>
             <div
               style={{
