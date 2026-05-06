@@ -1,24 +1,35 @@
 # F1 What-If Engine
 
-A web-based Formula 1 strategy game. Take a real race, change a driver's pit strategy, and see how the result changes.
+A viral, web-based Formula 1 strategy game. Take a real race, change a driver's pit strategy, and see how the result changes across the entire grid.
 
 **MVP Challenge:** Verstappen finished P6 at Monaco 2024. Can you get him to the podium?
 
 ## How It Works
 
-1. **Accept the challenge** — see the starting grid and target position
-2. **Build your strategy** — choose pit stop laps and tire compounds (Soft, Medium, Hard)
+1. **Accept the challenge** — see the starting grid, target position, and race context
+2. **Build your strategy** — drag pit stop laps and choose tire compounds (Soft, Medium, Hard)
 3. **Simulate the race** — all 20 drivers are re-simulated lap-by-lap with your strategy
-4. **Share your result** — get an F1 broadcast-style card to share on social media
+4. **Analyze the result** — race progress chart, key moments, standings comparison
+5. **Share your result** — shareable link with full strategy replay
 
-The simulation is deterministic and runs entirely in the browser (<1ms). Changing Verstappen's strategy creates a butterfly effect across the entire grid through dynamic traffic penalties.
+The simulation is **deterministic** and runs entirely in the browser (<1ms). Changing Verstappen's strategy creates a butterfly effect across the entire grid through traffic dynamics, dirty air, and pit timing.
+
+## Features
+
+- **Race Progress Chart** — interactive Recharts line chart showing lap-by-lap positions for up to 10 drivers, with tire compound markers at pit stops
+- **Key Moments** — structured narrative of overtakes, undercuts, overcuts, lost positions, and tire cliff events with collapsible detail view
+- **Standings Comparison** — side-by-side actual vs. simulated finishing order for all 20 drivers
+- **Internationalization** — English and Turkish language support with instant toggle
+- **Social Sharing** — shareable links that re-run the simulation, plus OG image generation
+- **Tier System** — results ranked from Legendary to Worse with localized badge labels
 
 ## Tech Stack
 
-- **Next.js** (App Router) — single codebase, single deploy
+- **Next.js 16** (App Router) — single codebase, single deploy
 - **TypeScript** — simulation engine + UI
-- **Tailwind CSS v4** — F1 broadcast-style dark theme
-- **Vitest** — 28 test cases (validation + simulation)
+- **Tailwind CSS v4** — F1 broadcast-style dark theme (Orbitron + Chakra Petch typography)
+- **Recharts** — race progress visualization
+- **Vitest** — 29 test cases (validation + simulation)
 - **next/og (Satori)** — dynamic OG image generation
 - **Vercel** — deployment with edge runtime for OG images
 
@@ -26,26 +37,64 @@ The simulation is deterministic and runs entirely in the browser (<1ms). Changin
 
 ```
 src/
-├── engine/          # Pure TypeScript simulation (no React)
-│   ├── types.ts     # Shared types
-│   ├── constants.ts # Tire model, team colors, tier definitions
-│   ├── validate.ts  # Strategy validation rules
-│   └── simulate.ts  # Lap-by-lap race simulation + scoring
+├── engine/              # Pure TypeScript simulation (no React)
+│   ├── types.ts         # Shared types (SimOutput, PositionChange, etc.)
+│   ├── constants.ts     # Tire model, physics constants, team colors
+│   ├── validate.ts      # Strategy validation rules (i18n-aware)
+│   └── simulate.ts      # Lap-by-lap race simulation + scoring
 ├── data/
 │   ├── race-data.json   # Precomputed Monaco 2024 data (from OpenF1 API)
 │   └── challenges.ts    # Challenge definitions
-├── components/      # React UI components
+├── components/          # React UI components
 │   ├── ChallengeBrief.tsx
 │   ├── StrategyBuilder.tsx
 │   ├── TireBar.tsx
 │   ├── ResultCard.tsx
 │   ├── ScoreBadge.tsx
-│   └── StandingsComparison.tsx
+│   ├── StandingsComparison.tsx
+│   └── PositionChart.tsx
+├── i18n/                # Internationalization
+│   ├── types.ts         # Translation interface
+│   ├── en.ts            # English translations
+│   ├── tr.ts            # Turkish translations
+│   └── context.tsx      # I18nProvider, useI18n hook, LanguageToggle
 └── app/
     ├── page.tsx         # Main game (3-view state machine)
+    ├── Providers.tsx    # Client wrapper for context providers
     ├── share/           # Share landing page (re-runs simulation)
     └── api/og/          # OG image generation (edge runtime)
 ```
+
+## Simulation Model
+
+The engine simulates all 20 drivers lap-by-lap with context-aware physics:
+
+```
+lapTime = basePace + tireEffect + degradation - fuelBurn + coldTirePenalty + paceCeiling + pitLoss
+```
+
+### Tire Compounds
+
+| Compound | Speed Bonus | Degradation/Lap | Lifetime |
+|----------|-------------|-----------------|----------|
+| Soft     | -1.2s       | +0.3s           | 15 laps  |
+| Medium   | -0.6s       | +0.15s          | 25 laps  |
+| Hard     | +0.3s       | +0.05s          | 35 laps  |
+
+Exceeding tire lifetime adds +2.0s/lap cliff penalty.
+
+### Physics Model
+
+| Factor | Effect | Value |
+|--------|--------|-------|
+| Fuel burn | Cars get faster as fuel load decreases | -0.03s/lap |
+| Cold tires | Out-lap penalty on fresh tires (non-first stint) | +1.5s |
+| Dirty air degradation | Tires degrade 20% faster when within 1.5s of car ahead | 1.2x multiplier |
+| Pace ceiling | Faster car blocked unless pace delta exceeds threshold | 2.0s required |
+| Dirty air margin | Stuck car sits behind leader at fixed gap | +0.2s behind |
+| Pit stop loss | Time lost entering/exiting pits (Monaco) | 22s |
+
+The Monaco overtake threshold (2.0s) makes the **undercut** the primary way to gain positions — just like the real Monaco GP.
 
 ## Development
 
@@ -89,22 +138,6 @@ vercel
 Or connect your GitHub repository at [vercel.com/new](https://vercel.com/new) for automatic deployments on push.
 
 No environment variables or special configuration required. The OG image route runs on Vercel Edge Functions automatically.
-
-## Simulation Model
-
-Each lap for every driver:
-
-```
-lapTime = basePace + tireEffect + degradation + trafficPenalty + pitLoss
-```
-
-| Compound | Speed Bonus | Degradation/Lap | Lifetime |
-|----------|-------------|-----------------|----------|
-| Soft | -1.2s | +0.3s | 15 laps |
-| Medium | -0.6s | +0.15s | 25 laps |
-| Hard | +0.3s | +0.05s | 35 laps |
-
-Exceeding tire lifetime adds +2.0s per lap. Traffic within 1.5s adds +0.8s, within 3.0s adds +0.3s. Pit stop costs 22s at Monaco.
 
 ## License
 
