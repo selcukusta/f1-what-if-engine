@@ -1,36 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# F1 What-If Engine
 
-## Getting Started
+A web-based Formula 1 strategy game. Take a real race, change a driver's pit strategy, and see how the result changes.
 
-First, run the development server:
+**MVP Challenge:** Verstappen finished P6 at Monaco 2024. Can you get him to the podium?
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## How It Works
+
+1. **Accept the challenge** — see the starting grid and target position
+2. **Build your strategy** — choose pit stop laps and tire compounds (Soft, Medium, Hard)
+3. **Simulate the race** — all 20 drivers are re-simulated lap-by-lap with your strategy
+4. **Share your result** — get an F1 broadcast-style card to share on social media
+
+The simulation is deterministic and runs entirely in the browser (<1ms). Changing Verstappen's strategy creates a butterfly effect across the entire grid through dynamic traffic penalties.
+
+## Tech Stack
+
+- **Next.js** (App Router) — single codebase, single deploy
+- **TypeScript** — simulation engine + UI
+- **Tailwind CSS v4** — F1 broadcast-style dark theme
+- **Vitest** — 28 test cases (validation + simulation)
+- **next/og (Satori)** — dynamic OG image generation
+- **Vercel** — deployment with edge runtime for OG images
+
+## Project Structure
+
+```
+src/
+├── engine/          # Pure TypeScript simulation (no React)
+│   ├── types.ts     # Shared types
+│   ├── constants.ts # Tire model, team colors, tier definitions
+│   ├── validate.ts  # Strategy validation rules
+│   └── simulate.ts  # Lap-by-lap race simulation + scoring
+├── data/
+│   ├── race-data.json   # Precomputed Monaco 2024 data (from OpenF1 API)
+│   └── challenges.ts    # Challenge definitions
+├── components/      # React UI components
+│   ├── ChallengeBrief.tsx
+│   ├── StrategyBuilder.tsx
+│   ├── TireBar.tsx
+│   ├── ResultCard.tsx
+│   ├── ScoreBadge.tsx
+│   └── StandingsComparison.tsx
+└── app/
+    ├── page.tsx         # Main game (3-view state machine)
+    ├── share/           # Share landing page (re-runs simulation)
+    └── api/og/          # OG image generation (edge runtime)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Learn More
+### Commands
 
-To learn more about Next.js, take a look at the following resources:
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Production build |
+| `npm run start` | Start production server |
+| `npm run test` | Run all tests |
+| `npm run test:watch` | Run tests in watch mode |
+| `npm run lint` | Run ESLint |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Regenerating Race Data
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Race data is precomputed from the [OpenF1 API](https://openf1.org). To regenerate:
 
-## Deploy on Vercel
+```bash
+npx tsx scripts/fetch-race-data.ts
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This fetches lap times, stints, and driver data for the 2024 Monaco GP (session 9523), computes base pace per driver, and writes `src/data/race-data.json`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deployment
+
+Deploy to Vercel:
+
+```bash
+npm i -g vercel
+vercel
+```
+
+Or connect your GitHub repository at [vercel.com/new](https://vercel.com/new) for automatic deployments on push.
+
+No environment variables or special configuration required. The OG image route runs on Vercel Edge Functions automatically.
+
+## Simulation Model
+
+Each lap for every driver:
+
+```
+lapTime = basePace + tireEffect + degradation + trafficPenalty + pitLoss
+```
+
+| Compound | Speed Bonus | Degradation/Lap | Lifetime |
+|----------|-------------|-----------------|----------|
+| Soft | -1.2s | +0.3s | 15 laps |
+| Medium | -0.6s | +0.15s | 25 laps |
+| Hard | +0.3s | +0.05s | 35 laps |
+
+Exceeding tire lifetime adds +2.0s per lap. Traffic within 1.5s adds +0.8s, within 3.0s adds +0.3s. Pit stop costs 22s at Monaco.
+
+## License
+
+MIT
