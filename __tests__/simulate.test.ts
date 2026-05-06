@@ -35,44 +35,61 @@ describe("userStrategyToStints", () => {
 });
 
 describe("calculateLapTime", () => {
+  // Helper: raceLap=1, no car ahead, not pit, first stint (isolates tire math)
+  const base = (compound: Parameters<typeof calculateLapTime>[1], lapInStint: number) =>
+    calculateLapTime(80, compound, lapInStint, 1, 0, 0, false, 22, true);
+
   it("returns basePace + tire effect on lap 1 of stint (no degradation)", () => {
-    const time = calculateLapTime(80, "soft", 1, 0, false, 22);
-    expect(time).toBeCloseTo(80 - 1.2, 5);
+    const time = base("soft", 1);
+    expect(time).toBeCloseTo(80 - 1.2 - 0.03, 5);
   });
 
   it("accumulates degradation over laps", () => {
-    const lap1 = calculateLapTime(80, "soft", 1, 0, false, 22);
-    const lap10 = calculateLapTime(80, "soft", 10, 0, false, 22);
+    const lap1 = base("soft", 1);
+    const lap10 = base("soft", 10);
     expect(lap10 - lap1).toBeCloseTo(0.3 * 9, 5);
   });
 
   it("adds over-lifetime penalty for soft after 15 laps", () => {
-    const lap15 = calculateLapTime(80, "soft", 15, 0, false, 22);
-    const lap16 = calculateLapTime(80, "soft", 16, 0, false, 22);
+    const lap15 = base("soft", 15);
+    const lap16 = base("soft", 16);
     expect(lap16 - lap15).toBeCloseTo(0.3 + 2.0, 5);
   });
 
-  it("adds traffic penalty for close gap", () => {
-    const noTraffic = calculateLapTime(80, "medium", 1, 0, false, 22);
-    const closeTraffic = calculateLapTime(80, "medium", 1, 1.0, false, 22);
-    expect(closeTraffic - noTraffic).toBeCloseTo(0.8, 5);
+  it("adds fuel burn effect over race laps", () => {
+    const lap1 = calculateLapTime(80, "medium", 1, 1, 0, 0, false, 22, true);
+    const lap50 = calculateLapTime(80, "medium", 1, 50, 0, 0, false, 22, true);
+    expect(lap1 - lap50).toBeCloseTo(49 * 0.03, 5);
   });
 
-  it("adds smaller penalty for medium gap", () => {
-    const noTraffic = calculateLapTime(80, "medium", 1, 0, false, 22);
-    const medTraffic = calculateLapTime(80, "medium", 1, 2.0, false, 22);
-    expect(medTraffic - noTraffic).toBeCloseTo(0.3, 5);
+  it("adds cold tire penalty on first lap of non-first stint", () => {
+    const firstStint = calculateLapTime(80, "medium", 1, 10, 0, 0, false, 22, true);
+    const afterPit = calculateLapTime(80, "medium", 1, 10, 0, 0, false, 22, false);
+    expect(afterPit - firstStint).toBeCloseTo(1.5, 5);
   });
 
-  it("adds no penalty for large gap", () => {
-    const noTraffic = calculateLapTime(80, "medium", 1, 0, false, 22);
-    const farTraffic = calculateLapTime(80, "medium", 1, 5.0, false, 22);
-    expect(farTraffic).toBeCloseTo(noTraffic, 5);
+  it("applies pace ceiling when close behind slower car", () => {
+    // Car ahead doing 82s, our potential time is 79s (delta 3s > threshold 2s → passes)
+    const fast = calculateLapTime(80, "soft", 1, 1, 0.5, 82, false, 22, true);
+    expect(fast).toBeLessThan(82);
+
+    // Car ahead doing 79.5s, our potential is ~78.77s (delta ~0.73s < 2s → blocked)
+    const blocked = calculateLapTime(80, "soft", 1, 1, 0.5, 79.5, false, 22, true);
+    expect(blocked).toBeCloseTo(79.5 + 0.2, 1);
+  });
+
+  it("increases tire degradation in dirty air", () => {
+    // With dirty air (gap < 1.5), deg should be 1.2x
+    const clean = calculateLapTime(80, "soft", 10, 1, 0, 0, false, 22, true);
+    const dirty = calculateLapTime(80, "soft", 10, 1, 1.0, 90, false, 22, true);
+    // dirty air deg: 0.3 * 1.2 = 0.36/lap, so 9 extra laps: 9 * (0.36-0.3) = 0.54 more
+    // but also pace ceiling may apply — just check dirty is slower
+    expect(dirty).toBeGreaterThan(clean);
   });
 
   it("adds pit loss on pit laps", () => {
-    const normal = calculateLapTime(80, "medium", 1, 0, false, 22);
-    const pitLap = calculateLapTime(80, "medium", 1, 0, true, 22);
+    const normal = calculateLapTime(80, "medium", 1, 1, 0, 0, false, 22, true);
+    const pitLap = calculateLapTime(80, "medium", 1, 1, 0, 0, true, 22, true);
     expect(pitLap - normal).toBeCloseTo(22, 5);
   });
 });
@@ -204,7 +221,7 @@ describe("computeResult", () => {
     expect(typeof result.tier).toBe("string");
   });
 
-  it("produces a keyMoment string", () => {
+  it("produces positionChanges array", () => {
     const strategy: UserStrategy = {
       pitLaps: [5],
       compounds: ["soft", "hard"],
@@ -215,7 +232,11 @@ describe("computeResult", () => {
       compounds: ["soft", "hard"],
     });
     const result = computeResult(simOutput, baselineOutput, 3, strategy);
-    expect(result.keyMoment).toBeDefined();
-    expect(result.keyMoment.length).toBeGreaterThan(0);
+    expect(result.positionChanges).toBeDefined();
+    expect(Array.isArray(result.positionChanges)).toBe(true);
+    for (const pc of result.positionChanges) {
+      expect(pc.kind).toBeDefined();
+      expect(pc.lap).toBeGreaterThan(0);
+    }
   });
 });

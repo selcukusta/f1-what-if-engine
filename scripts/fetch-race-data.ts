@@ -10,6 +10,7 @@ type ApiLap = {
 
 type ApiDriver = {
   driver_number: number;
+  full_name: string;
   broadcast_name: string;
   name_acronym: string;
   team_name: string;
@@ -206,7 +207,12 @@ async function main() {
 
         return {
           id: apiDriver?.name_acronym ?? `D${num}`,
-          name: apiDriver?.broadcast_name ?? `Driver ${num}`,
+          name: apiDriver?.full_name
+            ? apiDriver.full_name
+                .split(" ")
+                .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+                .join(" ")
+            : `Driver ${num}`,
           team: apiDriver?.team_name ?? "Unknown",
           teamColor: apiDriver?.team_colour
             ? `#${apiDriver.team_colour}`

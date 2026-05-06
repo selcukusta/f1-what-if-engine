@@ -31,27 +31,37 @@ export const TIRE_CONFIG: Record<
 
 export const OVER_LIFETIME_PENALTY = 2.0;
 
+export const FUEL_BURN_PER_LAP = 0.03;
+
+export const COLD_TIRE_PENALTY = 1.5;
+
+export const DIRTY_AIR_DEG_MULTIPLIER = 1.2;
+
+export const DIRTY_AIR_MARGIN = 0.2;
+
+export const OVERTAKE_DELTA_REQUIRED = 2.0;
+
 export const TRAFFIC_THRESHOLDS = [
   { maxGap: 1.5, penalty: 0.8 },
   { maxGap: 3.0, penalty: 0.3 },
 ];
 
-export const TIER_LABELS: Record<string, { label: string; minPosition: number; maxPosition: number }> = {
-  legendary: { label: "Strategy God", minPosition: 1, maxPosition: 1 },
-  excellent: { label: "Podium Hero", minPosition: 2, maxPosition: 2 },
-  target: { label: "Mission Complete", minPosition: 3, maxPosition: 3 },
-  improved: { label: "Getting Closer", minPosition: 4, maxPosition: 5 },
-  unchanged: { label: "Back to the Drawing Board", minPosition: 6, maxPosition: 6 },
-  worse: { label: "That Wasn't the Plan", minPosition: 7, maxPosition: 20 },
-};
+export const TIER_RANGES: { key: string; minPosition: number; maxPosition: number }[] = [
+  { key: "legendary", minPosition: 1, maxPosition: 1 },
+  { key: "excellent", minPosition: 2, maxPosition: 2 },
+  { key: "target", minPosition: 3, maxPosition: 3 },
+  { key: "improved", minPosition: 4, maxPosition: 5 },
+  { key: "unchanged", minPosition: 6, maxPosition: 6 },
+  { key: "worse", minPosition: 7, maxPosition: 20 },
+];
 
 export function getTierForPosition(position: number): string {
-  for (const [, tier] of Object.entries(TIER_LABELS)) {
+  for (const tier of TIER_RANGES) {
     if (position >= tier.minPosition && position <= tier.maxPosition) {
-      return tier.label;
+      return tier.key;
     }
   }
-  return "That Wasn't the Plan";
+  return "worse";
 }
 
 export const TEAM_COLORS: Record<string, string> = {

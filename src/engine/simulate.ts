@@ -11,7 +11,11 @@ import {
 import {
   TIRE_CONFIG,
   OVER_LIFETIME_PENALTY,
-  TRAFFIC_THRESHOLDS,
+  FUEL_BURN_PER_LAP,
+  COLD_TIRE_PENALTY,
+  DIRTY_AIR_DEG_MULTIPLIER,
+  DIRTY_AIR_MARGIN,
+  OVERTAKE_DELTA_REQUIRED,
   getTierForPosition,
 } from "./constants";
 
@@ -34,26 +38,38 @@ export function calculateLapTime(
   basePaceSec: number,
   compound: Compound,
   lapInStint: number,
+  raceLap: number,
   gapToCarAhead: number,
+  carAheadLapTime: number,
   isPitLap: boolean,
-  pitLossSec: number
+  pitLossSec: number,
+  isFirstStint: boolean
 ): number {
   const tire = TIRE_CONFIG[compound];
 
   let time = basePaceSec;
   time += tire.effect;
-  time += tire.degradationPerLap * (lapInStint - 1);
+
+  const inDirtyAir = gapToCarAhead > 0 && gapToCarAhead < 1.5;
+  const degRate = inDirtyAir
+    ? tire.degradationPerLap * DIRTY_AIR_DEG_MULTIPLIER
+    : tire.degradationPerLap;
+  time += degRate * (lapInStint - 1);
 
   if (lapInStint > tire.lifetime) {
     time += OVER_LIFETIME_PENALTY;
   }
 
-  if (gapToCarAhead > 0) {
-    for (const threshold of TRAFFIC_THRESHOLDS) {
-      if (gapToCarAhead < threshold.maxGap) {
-        time += threshold.penalty;
-        break;
-      }
+  time -= raceLap * FUEL_BURN_PER_LAP;
+
+  if (lapInStint === 1 && !isFirstStint) {
+    time += COLD_TIRE_PENALTY;
+  }
+
+  if (gapToCarAhead > 0 && gapToCarAhead < 1.5 && carAheadLapTime > 0) {
+    const paceDelta = carAheadLapTime - time;
+    if (paceDelta > 0 && paceDelta < OVERTAKE_DELTA_REQUIRED) {
+      time = carAheadLapTime + DIRTY_AIR_MARGIN;
     }
   }
 
@@ -89,12 +105,18 @@ export function simulateRace(
 
   const cumulativeTimes = new Map<string, number>();
   const allLapTimes = new Map<string, number[]>();
+  const lastLapTime = new Map<string, number>();
   for (const driver of drivers) {
     cumulativeTimes.set(driver.id, 0);
     allLapTimes.set(driver.id, []);
+    lastLapTime.set(driver.id, 0);
   }
 
   const challengePositionsPerLap: number[] = [];
+  const driverPositionsPerLap = new Map<string, number[]>();
+  for (const driver of drivers) {
+    driverPositionsPerLap.set(driver.id, []);
+  }
   const positionChanges: PositionChange[] = [];
   let prevChallengePosition = drivers.find(
     (d) => d.id === challengeDriverId
@@ -120,20 +142,27 @@ export function simulateRace(
 
       const position = positionMap.get(driver.id) ?? 1;
       let gapToCarAhead = 0;
+      let carAheadLapTime = 0;
       if (position > 1) {
         const driverAhead = sorted[position - 2];
         gapToCarAhead =
           cumulativeTimes.get(driver.id)! -
           cumulativeTimes.get(driverAhead.id)!;
+        carAheadLapTime = lastLapTime.get(driverAhead.id) ?? 0;
       }
+
+      const isFirstStint = currentStint === stints[0];
 
       const lapTime = calculateLapTime(
         driver.basePaceSec,
         currentStint.compound,
         lapInStint,
+        lap,
         gapToCarAhead,
+        carAheadLapTime,
         isPitLap,
-        race.pitLossSec
+        race.pitLossSec,
+        isFirstStint
       );
 
       cumulativeTimes.set(
@@ -141,6 +170,7 @@ export function simulateRace(
         cumulativeTimes.get(driver.id)! + lapTime
       );
       allLapTimes.get(driver.id)!.push(lapTime);
+      lastLapTime.set(driver.id, lapTime);
     }
 
     const sortedAfterLap = [...drivers].sort(
@@ -149,28 +179,73 @@ export function simulateRace(
     const challengePosition =
       sortedAfterLap.findIndex((d) => d.id === challengeDriverId) + 1;
     challengePositionsPerLap.push(challengePosition);
+    sortedAfterLap.forEach((d, i) => {
+      driverPositionsPerLap.get(d.id)!.push(i + 1);
+    });
 
     if (challengePosition !== prevChallengePosition) {
-      const stints = strategiesMap.get(challengeDriverId)!;
-      const isPitLap = stints.some(
-        (s) =>
-          s.endLap === lap && s !== stints[stints.length - 1]
+      const challengeStints = strategiesMap.get(challengeDriverId)!;
+      const challengePitting = challengeStints.some(
+        (s) => s.endLap === lap && s !== challengeStints[challengeStints.length - 1]
       );
+      const challengeStint = findCurrentStint(challengeStints, lap);
+      const challengeLapInStint = challengeStint ? lap - challengeStint.startLap + 1 : 0;
+      const challengeTireLife = challengeStint
+        ? TIRE_CONFIG[challengeStint.compound].lifetime
+        : Infinity;
 
       if (challengePosition < prevChallengePosition) {
-        const overtakenIdx = prevChallengePosition - 2;
-        const overtakenDriver =
-          overtakenIdx >= 0 && overtakenIdx < sortedAfterLap.length
-            ? sortedAfterLap[challengePosition]?.name ?? "Unknown"
-            : "Unknown";
+        for (let pos = challengePosition; pos < prevChallengePosition; pos++) {
+          const other = sorted.find(
+            (d) => positionMap.get(d.id) === pos && d.id !== challengeDriverId
+          );
+          const otherId = other?.id;
+          const otherPitting = otherId
+            ? strategiesMap.get(otherId)!.some(
+                (s) => s.endLap === lap && s !== strategiesMap.get(otherId!)![strategiesMap.get(otherId!)!.length - 1]
+              )
+            : false;
 
-        positionChanges.push({
-          lap,
-          newPosition: challengePosition,
-          oldPosition: prevChallengePosition,
-          overtakenDriverName: overtakenDriver,
-          isPitLap,
-        });
+          let kind: PositionChange["kind"];
+          if (challengePitting) {
+            kind = "undercut";
+          } else if (otherPitting) {
+            kind = "overcut";
+          } else {
+            kind = "overtake";
+          }
+
+          positionChanges.push({
+            lap,
+            newPosition: pos,
+            oldPosition: pos + 1,
+            otherDriverName: other?.name ?? "Unknown",
+            kind,
+          });
+        }
+      } else {
+        for (let pos = prevChallengePosition; pos < challengePosition; pos++) {
+          const other = sortedAfterLap.find(
+            (d, i) => i + 1 === pos && d.id !== challengeDriverId
+          );
+
+          let kind: PositionChange["kind"];
+          if (challengePitting) {
+            kind = "lost-position";
+          } else if (challengeLapInStint > challengeTireLife) {
+            kind = "tire-cliff";
+          } else {
+            kind = "lost-position";
+          }
+
+          positionChanges.push({
+            lap,
+            newPosition: challengePosition,
+            oldPosition: prevChallengePosition,
+            otherDriverName: other?.name ?? "Unknown",
+            kind,
+          });
+        }
       }
       prevChallengePosition = challengePosition;
     }
@@ -187,6 +262,11 @@ export function simulateRace(
     finalPosition: i + 1,
   }));
 
+  const allPositionsPerLap = drivers.map((d) => ({
+    driverId: d.id,
+    positions: driverPositionsPerLap.get(d.id)!,
+  }));
+
   return {
     finalPosition,
     totalTimeSec: cumulativeTimes.get(challengeDriverId)!,
@@ -194,6 +274,7 @@ export function simulateRace(
     positionsPerLap: challengePositionsPerLap,
     positionChanges,
     allDriverResults,
+    allPositionsPerLap,
   };
 }
 
@@ -211,16 +292,14 @@ export function computeResult(
 
   const tier = getTierForPosition(simOutput.finalPosition);
 
-  let keyMoment: string;
-  if (simOutput.positionChanges.length > 0) {
-    const best = simOutput.positionChanges.reduce((a, b) =>
-      b.oldPosition - b.newPosition > a.oldPosition - a.newPosition ? b : a
-    );
-    const verb = best.isPitLap ? "Undercut on" : "Passed on";
-    keyMoment = `${verb} Lap ${best.lap} jumped ${best.overtakenDriverName} for P${best.newPosition}`;
-  } else {
-    keyMoment = "No position changes — try a different strategy";
+  const byLap = new Map<number, PositionChange>();
+  for (const pc of simOutput.positionChanges) {
+    const existing = byLap.get(pc.lap);
+    if (!existing || Math.abs(pc.newPosition - pc.oldPosition) > Math.abs(existing.newPosition - existing.oldPosition)) {
+      byLap.set(pc.lap, pc);
+    }
   }
+  const positionChanges = [...byLap.values()].sort((a, b) => a.lap - b.lap);
 
   return {
     finalPosition: simOutput.finalPosition,
@@ -230,8 +309,9 @@ export function computeResult(
     lapTimes: simOutput.lapTimes,
     positionsPerLap: simOutput.positionsPerLap,
     score,
-    keyMoment,
+    positionChanges,
     tier,
     allDriverResults: simOutput.allDriverResults,
+    allPositionsPerLap: simOutput.allPositionsPerLap,
   };
 }
