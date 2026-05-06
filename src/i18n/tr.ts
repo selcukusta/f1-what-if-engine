@@ -5,12 +5,14 @@ const tr: Translations = {
   langLabel: "TR",
 
   challenge: {
+    chooseTitle: "Bir Meydan Okuma Seç",
     acceptButton: "Meydan Okumayı Kabul Et",
     grid: "Grid",
     target: "Hedef",
     maxPitStops: (n: number) => `Maksimum ${n} pit stop`,
     laps: (n: number) => `${n} tur`,
     mustUseCompounds: "En az 2 farklı lastik kullanılmalı",
+    play: "Oyna →",
   },
 
   strategy: {
@@ -79,6 +81,12 @@ const tr: Translations = {
   share: {
     heading: "F1 What-If Engine",
     beatThis: "Bunu yenebilir misin? →",
+  },
+
+  difficulty: {
+    easy: "Kolay",
+    medium: "Orta",
+    hard: "Zor",
   },
 
   tiers: {

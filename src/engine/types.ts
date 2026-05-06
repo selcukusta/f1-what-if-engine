@@ -25,6 +25,9 @@ export type RaceInfo = {
   pitLossSec: number;
   overtakeDelta?: number;
   dirtyAirMargin?: number;
+  fuelBurnPerLap?: number;
+  coldTirePenalty?: number;
+  dirtyAirDegMultiplier?: number;
 };
 
 export type RaceData = {

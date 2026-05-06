@@ -6,6 +6,7 @@ import { userStrategyToStints } from "@/engine/simulate";
 import { useI18n } from "@/i18n/context";
 import TireBar from "./TireBar";
 import ScoreBadge from "./ScoreBadge";
+import PositionHero from "./PositionHero";
 import StandingsComparison from "./StandingsComparison";
 import PositionChart from "./PositionChart";
 
@@ -104,41 +105,16 @@ export default function ResultCard({
 
   const stints = userStrategyToStints(strategy, raceData.race.totalLaps);
 
-  const gainColor =
-    result.positionsGained > 0
-      ? "text-f1-gain"
-      : result.positionsGained < 0
-        ? "text-f1-loss"
-        : "text-f1-grey";
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-6 py-12">
       <div className="max-w-md w-full text-center">
         <ScoreBadge tier={result.tier} />
 
-        <div className="flex items-center justify-center gap-6 my-8">
-          <div>
-            <p className="f1-label mb-1">{t.result.was}</p>
-            <p className="f1-number text-5xl text-f1-grey">
-              P{result.originalPosition}
-            </p>
-          </div>
-          <div className={`text-3xl ${gainColor}`}>→</div>
-          <div>
-            <p className="f1-label mb-1">{t.result.now}</p>
-            <p className={`f1-number text-5xl ${gainColor}`}>
-              P{result.finalPosition}
-            </p>
-          </div>
-        </div>
-
-        {result.positionsGained !== 0 && (
-          <p className={`font-body font-bold text-sm ${gainColor} mb-6`}>
-            {result.positionsGained > 0
-              ? t.result.positionsGained(result.positionsGained)
-              : t.result.positionsLost(result.positionsGained)}
-          </p>
-        )}
+        <PositionHero
+          from={result.originalPosition}
+          to={result.finalPosition}
+          positionsGained={result.positionsGained}
+        />
 
         <div className="mb-2">
           <p className="f1-heading text-lg">{driver.name}</p>

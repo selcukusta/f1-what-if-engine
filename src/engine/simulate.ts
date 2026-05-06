@@ -34,6 +34,14 @@ export function userStrategyToStints(
   return stints;
 }
 
+type TrackPhysics = {
+  overtakeDelta: number;
+  dirtyAirMargin: number;
+  fuelBurnPerLap: number;
+  coldTirePenalty: number;
+  dirtyAirDegMultiplier: number;
+};
+
 export function calculateLapTime(
   basePaceSec: number,
   compound: Compound,
@@ -44,8 +52,7 @@ export function calculateLapTime(
   isPitLap: boolean,
   pitLossSec: number,
   isFirstStint: boolean,
-  overtakeDelta: number = OVERTAKE_DELTA_REQUIRED,
-  dirtyAirMargin: number = DIRTY_AIR_MARGIN,
+  physics: TrackPhysics,
 ): number {
   const tire = TIRE_CONFIG[compound];
 
@@ -54,7 +61,7 @@ export function calculateLapTime(
 
   const inDirtyAir = gapToCarAhead > 0 && gapToCarAhead < 1.5;
   const degRate = inDirtyAir
-    ? tire.degradationPerLap * DIRTY_AIR_DEG_MULTIPLIER
+    ? tire.degradationPerLap * physics.dirtyAirDegMultiplier
     : tire.degradationPerLap;
   time += degRate * (lapInStint - 1);
 
@@ -62,16 +69,16 @@ export function calculateLapTime(
     time += OVER_LIFETIME_PENALTY;
   }
 
-  time -= raceLap * FUEL_BURN_PER_LAP;
+  time -= raceLap * physics.fuelBurnPerLap;
 
   if (lapInStint === 1 && !isFirstStint) {
-    time += COLD_TIRE_PENALTY;
+    time += physics.coldTirePenalty;
   }
 
   if (gapToCarAhead > 0 && gapToCarAhead < 1.5 && carAheadLapTime > 0) {
     const paceDelta = carAheadLapTime - time;
-    if (paceDelta > 0 && paceDelta < overtakeDelta) {
-      time = carAheadLapTime + dirtyAirMargin;
+    if (paceDelta > 0 && paceDelta < physics.overtakeDelta) {
+      time = carAheadLapTime + physics.dirtyAirMargin;
     }
   }
 
@@ -92,8 +99,13 @@ export function simulateRace(
   userStrategy: UserStrategy
 ): SimOutput {
   const { race, drivers } = raceData;
-  const trackOvertakeDelta = race.overtakeDelta ?? OVERTAKE_DELTA_REQUIRED;
-  const trackDirtyAirMargin = race.dirtyAirMargin ?? DIRTY_AIR_MARGIN;
+  const physics: TrackPhysics = {
+    overtakeDelta: race.overtakeDelta ?? OVERTAKE_DELTA_REQUIRED,
+    dirtyAirMargin: race.dirtyAirMargin ?? DIRTY_AIR_MARGIN,
+    fuelBurnPerLap: race.fuelBurnPerLap ?? FUEL_BURN_PER_LAP,
+    coldTirePenalty: race.coldTirePenalty ?? COLD_TIRE_PENALTY,
+    dirtyAirDegMultiplier: race.dirtyAirDegMultiplier ?? DIRTY_AIR_DEG_MULTIPLIER,
+  };
 
   const activeDrivers = drivers.filter((d) => !d.dnf);
 
@@ -169,8 +181,7 @@ export function simulateRace(
         isPitLap,
         race.pitLossSec,
         isFirstStint,
-        trackOvertakeDelta,
-        trackDirtyAirMargin,
+        physics,
       );
 
       cumulativeTimes.set(

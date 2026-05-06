@@ -7,6 +7,14 @@ import {
 } from "@/engine/simulate";
 import { RaceData, UserStrategy, Stint } from "@/engine/types";
 
+const defaultPhysics = {
+  overtakeDelta: 2.0,
+  dirtyAirMargin: 0.2,
+  fuelBurnPerLap: 0.03,
+  coldTirePenalty: 1.5,
+  dirtyAirDegMultiplier: 1.2,
+};
+
 describe("userStrategyToStints", () => {
   it("converts a 1-stop strategy to stints", () => {
     const strategy: UserStrategy = {
@@ -37,7 +45,7 @@ describe("userStrategyToStints", () => {
 describe("calculateLapTime", () => {
   // Helper: raceLap=1, no car ahead, not pit, first stint (isolates tire math)
   const base = (compound: Parameters<typeof calculateLapTime>[1], lapInStint: number) =>
-    calculateLapTime(80, compound, lapInStint, 1, 0, 0, false, 22, true);
+    calculateLapTime(80, compound, lapInStint, 1, 0, 0, false, 22, true, defaultPhysics);
 
   it("returns basePace + tire effect on lap 1 of stint (no degradation)", () => {
     const time = base("soft", 1);
@@ -57,39 +65,39 @@ describe("calculateLapTime", () => {
   });
 
   it("adds fuel burn effect over race laps", () => {
-    const lap1 = calculateLapTime(80, "medium", 1, 1, 0, 0, false, 22, true);
-    const lap50 = calculateLapTime(80, "medium", 1, 50, 0, 0, false, 22, true);
+    const lap1 = calculateLapTime(80, "medium", 1, 1, 0, 0, false, 22, true, defaultPhysics);
+    const lap50 = calculateLapTime(80, "medium", 1, 50, 0, 0, false, 22, true, defaultPhysics);
     expect(lap1 - lap50).toBeCloseTo(49 * 0.03, 5);
   });
 
   it("adds cold tire penalty on first lap of non-first stint", () => {
-    const firstStint = calculateLapTime(80, "medium", 1, 10, 0, 0, false, 22, true);
-    const afterPit = calculateLapTime(80, "medium", 1, 10, 0, 0, false, 22, false);
+    const firstStint = calculateLapTime(80, "medium", 1, 10, 0, 0, false, 22, true, defaultPhysics);
+    const afterPit = calculateLapTime(80, "medium", 1, 10, 0, 0, false, 22, false, defaultPhysics);
     expect(afterPit - firstStint).toBeCloseTo(1.5, 5);
   });
 
   it("applies pace ceiling when close behind slower car", () => {
     // Car ahead doing 82s, our potential time is 79s (delta 3s > threshold 2s → passes)
-    const fast = calculateLapTime(80, "soft", 1, 1, 0.5, 82, false, 22, true);
+    const fast = calculateLapTime(80, "soft", 1, 1, 0.5, 82, false, 22, true, defaultPhysics);
     expect(fast).toBeLessThan(82);
 
     // Car ahead doing 79.5s, our potential is ~78.77s (delta ~0.73s < 2s → blocked)
-    const blocked = calculateLapTime(80, "soft", 1, 1, 0.5, 79.5, false, 22, true);
+    const blocked = calculateLapTime(80, "soft", 1, 1, 0.5, 79.5, false, 22, true, defaultPhysics);
     expect(blocked).toBeCloseTo(79.5 + 0.2, 1);
   });
 
   it("increases tire degradation in dirty air", () => {
     // With dirty air (gap < 1.5), deg should be 1.2x
-    const clean = calculateLapTime(80, "soft", 10, 1, 0, 0, false, 22, true);
-    const dirty = calculateLapTime(80, "soft", 10, 1, 1.0, 90, false, 22, true);
+    const clean = calculateLapTime(80, "soft", 10, 1, 0, 0, false, 22, true, defaultPhysics);
+    const dirty = calculateLapTime(80, "soft", 10, 1, 1.0, 90, false, 22, true, defaultPhysics);
     // dirty air deg: 0.3 * 1.2 = 0.36/lap, so 9 extra laps: 9 * (0.36-0.3) = 0.54 more
     // but also pace ceiling may apply — just check dirty is slower
     expect(dirty).toBeGreaterThan(clean);
   });
 
   it("adds pit loss on pit laps", () => {
-    const normal = calculateLapTime(80, "medium", 1, 1, 0, 0, false, 22, true);
-    const pitLap = calculateLapTime(80, "medium", 1, 1, 0, 0, true, 22, true);
+    const normal = calculateLapTime(80, "medium", 1, 1, 0, 0, false, 22, true, defaultPhysics);
+    const pitLap = calculateLapTime(80, "medium", 1, 1, 0, 0, true, 22, true, defaultPhysics);
     expect(pitLap - normal).toBeCloseTo(22, 5);
   });
 });

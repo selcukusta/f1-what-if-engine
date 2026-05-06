@@ -7,6 +7,7 @@ import { Compound, UserStrategy } from "@/engine/types";
 import { simulateRace } from "@/engine/simulate";
 import { useI18n } from "@/i18n/context";
 import ScoreBadge from "@/components/ScoreBadge";
+import PositionHero from "@/components/PositionHero";
 import StandingsComparison from "@/components/StandingsComparison";
 import PositionChart from "@/components/PositionChart";
 
@@ -65,7 +66,6 @@ export default function ShareContent({ params }: Props) {
   const to = params.t ?? "?";
   const score = params.s ?? "0";
   const tier = params.tier ?? "Unknown";
-  const positionsGained = Number(from) - Number(to);
 
   const driver = useMemo(
     () => raceData.drivers.find((d) => d.id === challenge.driverId),
@@ -82,13 +82,6 @@ export default function ShareContent({ params }: Props) {
     return simulateRace(raceData, challenge.driverId, parsedStrategy);
   }, [parsedStrategy, raceData, challenge.driverId]);
 
-  const gainColor =
-    positionsGained > 0
-      ? "text-f1-gain"
-      : positionsGained < 0
-        ? "text-f1-loss"
-        : "text-f1-grey";
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-6 py-12">
       <div className="max-w-md w-full text-center">
@@ -96,17 +89,7 @@ export default function ShareContent({ params }: Props) {
 
         <ScoreBadge tier={tier} />
 
-        <div className="flex items-center justify-center gap-6 my-8">
-          <div>
-            <p className="f1-label mb-1">{t.result.was}</p>
-            <p className="f1-number text-5xl text-f1-grey">P{from}</p>
-          </div>
-          <div className={`text-3xl ${gainColor}`}>→</div>
-          <div>
-            <p className="f1-label mb-1">{t.result.now}</p>
-            <p className={`f1-number text-5xl ${gainColor}`}>P{to}</p>
-          </div>
-        </div>
+        <PositionHero from={from} to={to} />
 
         <p className="f1-heading text-lg mb-2">{driver?.name ?? "Unknown"}</p>
         <p className="text-f1-grey text-sm font-body mb-4">

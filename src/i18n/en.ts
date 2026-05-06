@@ -5,12 +5,14 @@ const en: Translations = {
   langLabel: "EN",
 
   challenge: {
+    chooseTitle: "Choose a Challenge",
     acceptButton: "Accept Challenge",
     grid: "Grid",
     target: "Target",
     maxPitStops: (n: number) => `Max ${n} pit stops`,
     laps: (n: number) => `${n} laps`,
     mustUseCompounds: "Must use 2+ compounds",
+    play: "Play →",
   },
 
   strategy: {
@@ -79,6 +81,12 @@ const en: Translations = {
   share: {
     heading: "F1 What-If Engine",
     beatThis: "Can you beat this? →",
+  },
+
+  difficulty: {
+    easy: "Easy",
+    medium: "Medium",
+    hard: "Hard",
   },
 
   tiers: {

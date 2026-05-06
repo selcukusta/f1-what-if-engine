@@ -134,18 +134,18 @@ export default function Home() {
     const delta = c.originalPosition - c.targetPosition;
     if (c.targetPosition === 1) {
       return {
-        label: locale === "tr" ? "Zor" : "Hard",
+        label: t.difficulty.hard,
         color: "text-f1-loss bg-f1-loss/10 border-f1-loss/30",
       };
     }
     if (delta >= 3) {
       return {
-        label: locale === "tr" ? "Orta" : "Medium",
+        label: t.difficulty.medium,
         color: "text-yellow-400 bg-yellow-400/10 border-yellow-400/30",
       };
     }
     return {
-      label: locale === "tr" ? "Kolay" : "Easy",
+      label: t.difficulty.easy,
       color: "text-f1-gain bg-f1-gain/10 border-f1-gain/30",
     };
   }
@@ -156,7 +156,7 @@ export default function Home() {
         <div className="max-w-lg w-full text-center">
           <p className="f1-label text-f1-red mb-2">F1 WHAT-IF ENGINE</p>
           <h1 className="f1-heading text-2xl sm:text-3xl mb-6">
-            {locale === "tr" ? "Bir Meydan Okuma Seç" : "Choose a Challenge"}
+            {t.challenge.chooseTitle}
           </h1>
 
           <div className="relative">
@@ -220,24 +220,24 @@ export default function Home() {
                       <div className="flex items-center gap-4">
                         <div className="text-center">
                           <p className="text-[10px] text-f1-grey uppercase tracking-wider">
-                            {locale === "tr" ? "Sıralama" : "Grid"}
+                            {t.challenge.grid}
                           </p>
                           <p className="f1-number text-2xl text-f1-grey">P{c.originalPosition}</p>
                         </div>
                         <span className="text-f1-red text-lg">→</span>
                         <div className="text-center">
                           <p className="text-[10px] text-f1-grey uppercase tracking-wider">
-                            {locale === "tr" ? "Hedef" : "Target"}
+                            {t.challenge.target}
                           </p>
                           <p className="f1-number text-2xl text-f1-gain">P{c.targetPosition}</p>
                         </div>
                       </div>
                       <div className="text-right">
                         <p className="text-[10px] text-f1-grey uppercase tracking-wider mb-1">
-                          {cRaceData.race.totalLaps} {locale === "tr" ? "tur" : "laps"}
+                          {t.challenge.laps(cRaceData.race.totalLaps)}
                         </p>
                         <p className="text-f1-red text-xs font-body font-bold uppercase tracking-wider">
-                          {locale === "tr" ? "Oyna →" : "Play →"}
+                          {t.challenge.play}
                         </p>
                       </div>
                     </div>

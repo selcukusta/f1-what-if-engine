@@ -3,12 +3,14 @@ export type Translations = {
   langLabel: string;
 
   challenge: {
+    chooseTitle: string;
     acceptButton: string;
     grid: string;
     target: string;
     maxPitStops: (n: number) => string;
     laps: (n: number) => string;
     mustUseCompounds: string;
+    play: string;
   };
 
   strategy: {
@@ -73,6 +75,12 @@ export type Translations = {
   share: {
     heading: string;
     beatThis: string;
+  };
+
+  difficulty: {
+    easy: string;
+    medium: string;
+    hard: string;
   };
 
   tiers: Record<string, string>;

@@ -18,44 +18,53 @@ export default function StandingsComparison({
   const { t } = useI18n();
   const [expanded, setExpanded] = useState(false);
 
-  const actualOrderDrivers = useMemo(() => {
-    if (raceData.actualOrder) {
-      return raceData.actualOrder
-        .map((id) => raceData.drivers.find((d) => d.id === id)!)
-        .filter(Boolean);
-    }
-    return [...raceData.drivers].sort((a, b) => a.gridPosition - b.gridPosition);
-  }, [raceData]);
+  const driverMap = useMemo(
+    () => new Map(raceData.drivers.map((d) => [d.id, d])),
+    [raceData],
+  );
 
   const dnfIds = useMemo(
     () => new Set(raceData.drivers.filter((d) => d.dnf).map((d) => d.id)),
-    [raceData]
+    [raceData],
   );
 
-  const finisherCount = actualOrderDrivers.filter((d) => !dnfIds.has(d.id)).length;
+  const actualOrderDrivers = useMemo(() => {
+    if (raceData.actualOrder) {
+      return raceData.actualOrder
+        .map((id) => driverMap.get(id)!)
+        .filter(Boolean);
+    }
+    return [...raceData.drivers].sort((a, b) => a.gridPosition - b.gridPosition);
+  }, [raceData, driverMap]);
+
+  const { simByPosition, actualMap, finisherCount } = useMemo(() => {
+    const posMap = new Map<number, { driverId: string; finalPosition: number }>();
+    for (const entry of allDriverResults) {
+      posMap.set(entry.finalPosition, entry);
+    }
+    const aMap = new Map<string, number>();
+    let fCount = 0;
+    for (let i = 0; i < actualOrderDrivers.length; i++) {
+      const d = actualOrderDrivers[i];
+      if (!dnfIds.has(d.id)) {
+        fCount++;
+        aMap.set(d.id, fCount);
+      }
+    }
+    return { simByPosition: posMap, actualMap: aMap, finisherCount: fCount };
+  }, [allDriverResults, actualOrderDrivers, dnfIds]);
+
   const driverCount = actualOrderDrivers.length;
   const displayCount = expanded ? driverCount : Math.min(10, driverCount);
-
-  const simOrder = [...allDriverResults].sort(
-    (a, b) => a.finalPosition - b.finalPosition
-  );
-
-  const actualMap = new Map(
-    actualOrderDrivers
-      .filter((d) => !dnfIds.has(d.id))
-      .map((d, i) => [d.id, i + 1])
-  );
 
   const rows = Array.from({ length: displayCount }, (_, i) => {
     const pos = i + 1;
     const actualDriver = actualOrderDrivers[i];
     const isDnf = dnfIds.has(actualDriver?.id ?? "");
 
-    const simEntry = pos <= finisherCount
-      ? simOrder.find((d) => d.finalPosition === pos)
-      : undefined;
+    const simEntry = pos <= finisherCount ? simByPosition.get(pos) : undefined;
     const simDriverId = simEntry?.driverId ?? "";
-    const simDriverData = raceData.drivers.find((d) => d.id === simDriverId);
+    const simDriverData = driverMap.get(simDriverId);
 
     const actualPosOfSimDriver = actualMap.get(simDriverId) ?? 0;
     const delta = !isDnf && simDriverId ? actualPosOfSimDriver - pos : 0;
