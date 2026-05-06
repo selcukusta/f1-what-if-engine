@@ -83,6 +83,14 @@ const en: Translations = {
     beatThis: "Can you beat this? →",
   },
 
+  butterfly: {
+    title: "Butterfly Effect",
+    gained: (name: string, n: number) =>
+      `${name} gained ${n} position${n !== 1 ? "s" : ""} because of your strategy`,
+    lost: (name: string, n: number) =>
+      `${name} lost ${n} position${n !== 1 ? "s" : ""} because of your strategy`,
+  },
+
   difficulty: {
     easy: "Easy",
     medium: "Medium",

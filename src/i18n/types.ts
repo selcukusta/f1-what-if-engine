@@ -77,6 +77,12 @@ export type Translations = {
     beatThis: string;
   };
 
+  butterfly: {
+    title: string;
+    gained: (name: string, n: number) => string;
+    lost: (name: string, n: number) => string;
+  };
+
   difficulty: {
     easy: string;
     medium: string;

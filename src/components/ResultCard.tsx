@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SimResult, UserStrategy, RaceData, Challenge, PositionChange } from "@/engine/types";
+import { SimResult, UserStrategy, RaceData, Challenge, PositionChange, ButterflyEffect } from "@/engine/types";
 import { userStrategyToStints } from "@/engine/simulate";
 import { useI18n } from "@/i18n/context";
 import TireBar from "./TireBar";
@@ -90,6 +90,37 @@ function KeyMoments({ changes }: { changes: PositionChange[] }) {
   );
 }
 
+function ButterflyEffectCard({ effect }: { effect: ButterflyEffect }) {
+  const { t } = useI18n();
+  const isGain = effect.positionDelta > 0;
+  const abs = Math.abs(effect.positionDelta);
+
+  return (
+    <div className="f1-card mb-4 text-left border-l-[3px] border-yellow-400">
+      <p className="f1-label text-yellow-400 mb-2">{t.butterfly.title}</p>
+      <div className="flex items-center gap-3 mb-2">
+        <span
+          className="inline-block w-1.5 h-6 rounded-sm"
+          style={{ backgroundColor: effect.teamColor }}
+        />
+        <span className="font-body text-sm text-white">{effect.driverName}</span>
+      </div>
+      <div className="flex items-center gap-2 mb-1">
+        <span className="f1-number text-lg text-f1-grey">P{effect.baselinePosition}</span>
+        <span className="text-f1-grey">→</span>
+        <span className={`f1-number text-lg ${isGain ? "text-f1-gain" : "text-f1-loss"}`}>
+          P{effect.newPosition}
+        </span>
+      </div>
+      <p className={`text-xs font-body ${isGain ? "text-f1-gain" : "text-f1-loss"}`}>
+        {isGain
+          ? t.butterfly.gained(effect.driverName, abs)
+          : t.butterfly.lost(effect.driverName, abs)}
+      </p>
+    </div>
+  );
+}
+
 export default function ResultCard({
   result,
   strategy,
@@ -137,6 +168,10 @@ export default function ResultCard({
         </div>
 
         <KeyMoments changes={result.positionChanges} />
+
+        {result.butterflyEffect && (
+          <ButterflyEffectCard effect={result.butterflyEffect} />
+        )}
 
         <div className="mb-6">
           <p className="f1-label mb-1">{t.result.score}</p>

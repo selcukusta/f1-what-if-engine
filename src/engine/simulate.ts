@@ -1,4 +1,5 @@
 import {
+  ButterflyEffect,
   Compound,
   DriverData,
   PositionChange,
@@ -297,12 +298,48 @@ export function simulateRace(
   };
 }
 
+function computeButterflyEffect(
+  simResults: { driverId: string; finalPosition: number }[],
+  baselineResults: { driverId: string; finalPosition: number }[],
+  challengeDriverId: string,
+  drivers: DriverData[],
+): ButterflyEffect | null {
+  const baselineMap = new Map(baselineResults.map((r) => [r.driverId, r.finalPosition]));
+  const driverMap = new Map(drivers.map((d) => [d.id, d]));
+
+  let best: ButterflyEffect | null = null;
+  let maxDelta = 0;
+
+  for (const result of simResults) {
+    if (result.driverId === challengeDriverId) continue;
+    const baseline = baselineMap.get(result.driverId);
+    if (baseline === undefined) continue;
+    const absDelta = Math.abs(baseline - result.finalPosition);
+    if (absDelta > maxDelta) {
+      maxDelta = absDelta;
+      const driver = driverMap.get(result.driverId);
+      best = {
+        driverId: result.driverId,
+        driverName: driver?.name ?? result.driverId,
+        teamColor: driver?.teamColor ?? "#fff",
+        baselinePosition: baseline,
+        newPosition: result.finalPosition,
+        positionDelta: baseline - result.finalPosition,
+      };
+    }
+  }
+
+  return best;
+}
+
 export function computeResult(
   simOutput: SimOutput,
   baselineOutput: SimOutput,
   originalPosition: number,
   targetPosition: number,
-  userStrategy: UserStrategy
+  userStrategy: UserStrategy,
+  challengeDriverId: string,
+  drivers: DriverData[],
 ): SimResult {
   const positionsGained = originalPosition - simOutput.finalPosition;
   const timeDelta = baselineOutput.totalTimeSec - simOutput.totalTimeSec;
@@ -321,6 +358,13 @@ export function computeResult(
   }
   const positionChanges = [...byLap.values()].sort((a, b) => a.lap - b.lap);
 
+  const butterflyEffect = computeButterflyEffect(
+    simOutput.allDriverResults,
+    baselineOutput.allDriverResults,
+    challengeDriverId,
+    drivers,
+  );
+
   return {
     finalPosition: simOutput.finalPosition,
     originalPosition,
@@ -333,5 +377,6 @@ export function computeResult(
     tier,
     allDriverResults: simOutput.allDriverResults,
     allPositionsPerLap: simOutput.allPositionsPerLap,
+    butterflyEffect,
   };
 }

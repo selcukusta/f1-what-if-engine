@@ -83,6 +83,14 @@ const tr: Translations = {
     beatThis: "Bunu yenebilir misin? →",
   },
 
+  butterfly: {
+    title: "Kelebek Etkisi",
+    gained: (name: string, n: number) =>
+      `${name} senin stratejin sayesinde ${n} pozisyon kazandı`,
+    lost: (name: string, n: number) =>
+      `${name} senin stratejin yüzünden ${n} pozisyon kaybetti`,
+  },
+
   difficulty: {
     easy: "Kolay",
     medium: "Orta",

@@ -210,7 +210,7 @@ describe("computeResult", () => {
       pitLaps: [6],
       compounds: ["soft", "hard"],
     });
-    const result = computeResult(simOutput, baselineOutput, 3, 1, strategy);
+    const result = computeResult(simOutput, baselineOutput, 3, 1, strategy, "D3", testRaceData.drivers);
     expect(result.positionsGained).toBe(3 - result.finalPosition);
   });
 
@@ -224,7 +224,7 @@ describe("computeResult", () => {
       pitLaps: [6],
       compounds: ["soft", "hard"],
     });
-    const result = computeResult(simOutput, baselineOutput, 3, 1, strategy);
+    const result = computeResult(simOutput, baselineOutput, 3, 1, strategy, "D3", testRaceData.drivers);
     expect(result.tier).toBeDefined();
     expect(typeof result.tier).toBe("string");
   });
@@ -239,12 +239,30 @@ describe("computeResult", () => {
       pitLaps: [6],
       compounds: ["soft", "hard"],
     });
-    const result = computeResult(simOutput, baselineOutput, 3, 1, strategy);
+    const result = computeResult(simOutput, baselineOutput, 3, 1, strategy, "D3", testRaceData.drivers);
     expect(result.positionChanges).toBeDefined();
     expect(Array.isArray(result.positionChanges)).toBe(true);
     for (const pc of result.positionChanges) {
       expect(pc.kind).toBeDefined();
       expect(pc.lap).toBeGreaterThan(0);
+    }
+  });
+
+  it("identifies the most impacted driver (butterfly effect)", () => {
+    const strategy: UserStrategy = {
+      pitLaps: [5],
+      compounds: ["soft", "hard"],
+    };
+    const simOutput = simulateRace(testRaceData, "D3", strategy);
+    const baselineOutput = simulateRace(testRaceData, "D3", {
+      pitLaps: [6],
+      compounds: ["soft", "hard"],
+    });
+    const result = computeResult(simOutput, baselineOutput, 3, 1, strategy, "D3", testRaceData.drivers);
+    if (result.butterflyEffect) {
+      expect(result.butterflyEffect.driverId).not.toBe("D3");
+      expect(result.butterflyEffect.driverName).toBeDefined();
+      expect(result.butterflyEffect.positionDelta).not.toBe(0);
     }
   });
 });

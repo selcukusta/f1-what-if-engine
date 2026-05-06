@@ -56,7 +56,9 @@ export default function Home() {
       baselineOutput,
       challenge.originalPosition,
       challenge.targetPosition,
-      strategy
+      strategy,
+      challenge.driverId,
+      raceData.drivers,
     );
     setUserStrategy(strategy);
     setSimResult(result);

@@ -66,6 +66,15 @@ export type SimOutput = {
   allPositionsPerLap: { driverId: string; positions: number[] }[];
 };
 
+export type ButterflyEffect = {
+  driverId: string;
+  driverName: string;
+  teamColor: string;
+  baselinePosition: number;
+  newPosition: number;
+  positionDelta: number;
+};
+
 export type SimResult = {
   finalPosition: number;
   originalPosition: number;
@@ -78,6 +87,7 @@ export type SimResult = {
   tier: string;
   allDriverResults: { driverId: string; finalPosition: number }[];
   allPositionsPerLap: { driverId: string; positions: number[] }[];
+  butterflyEffect: ButterflyEffect | null;
 };
 
 export type ChallengeTexts = {
