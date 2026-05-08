@@ -24,12 +24,12 @@ export async function GET(request: NextRequest) {
   const [orbitronData, chakraData] = await Promise.all([
     fetch(
       new URL(
-        "https://fonts.gstatic.com/s/orbitron/v31/yMJRMIlzdpvBhQQL_Qq7dy0.ttf"
+        "https://fonts.gstatic.com/s/orbitron/v35/yMJMMIlzdpvBhQQL_SC3X9yhF25-T1nysimxpg.ttf"
       )
     ).then((res) => res.arrayBuffer()),
     fetch(
       new URL(
-        "https://fonts.gstatic.com/s/chakrapetch/v11/cIflMapbsEk7TDLdtEz1BwkWmpLJQgs.ttf"
+        "https://fonts.gstatic.com/s/chakrapetch/v13/cIflMapbsEk7TDLdtEz1BwkeJI9FQA.ttf"
       )
     ).then((res) => res.arrayBuffer()),
   ]);
