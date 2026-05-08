@@ -94,6 +94,7 @@ export default function Home() {
       st: stintSummary,
       tier: simResult.tier,
       lang: locale,
+      v: process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? "dev",
     });
 
     const shareUrl = `${window.location.origin}/share?${params}`;

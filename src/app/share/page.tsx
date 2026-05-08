@@ -31,6 +31,8 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const driver = raceData.drivers.find((d) => d.id === challenge.driverId);
   const driverName = driver?.name ?? "Driver";
 
+  const buildId = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? "dev";
+
   const ogParams = new URLSearchParams();
   if (params.c) ogParams.set("c", params.c);
   if (params.d) ogParams.set("d", params.d);
@@ -39,6 +41,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   if (params.s) ogParams.set("s", params.s);
   if (params.tier) ogParams.set("tier", params.tier);
   if (params.st) ogParams.set("st", params.st);
+  ogParams.set("v", buildId);
 
   const title = `${t.result.shareTitle(driverName, Number(from), Number(to))} | F1 What-If Engine`;
   const description = t.result.shareText;
