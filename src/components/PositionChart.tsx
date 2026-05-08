@@ -159,7 +159,7 @@ export default function PositionChart({
     setVisibleCount(1);
     const total = data.length;
     if (total <= 1) return;
-    const duration = Math.ceil(totalLaps / 10) * 1000;
+    const duration = Math.ceil(totalLaps / 10) * 2000;
     let start: number | null = null;
 
     function tick(ts: number) {
