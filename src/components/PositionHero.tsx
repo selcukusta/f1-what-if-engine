@@ -21,19 +21,21 @@ export default function PositionHero({ from, to, positionsGained }: Props) {
           <p className="f1-label mb-1">{t.result.was}</p>
           <p className="f1-number text-3xl sm:text-5xl text-f1-grey">P{from}</p>
         </div>
-        <div className={`text-2xl sm:text-3xl ${gainColor}`}>→</div>
+        <div className="flex flex-col items-center">
+          <span className={`text-2xl sm:text-3xl ${gainColor}`}>→</span>
+          <p className={`font-body font-bold text-[10px] sm:text-xs ${gainColor} mt-1`}>
+            {gained > 0
+              ? t.result.positionsGained(gained)
+              : gained < 0
+                ? t.result.positionsLost(gained)
+                : t.result.noChange}
+          </p>
+        </div>
         <div>
           <p className="f1-label mb-1">{t.result.now}</p>
           <p className={`f1-number text-3xl sm:text-5xl ${gainColor}`}>P{to}</p>
         </div>
       </div>
-      {gained !== 0 && (
-        <p className={`font-body font-bold text-sm ${gainColor} mb-3 sm:mb-6`}>
-          {gained > 0
-            ? t.result.positionsGained(gained)
-            : t.result.positionsLost(gained)}
-        </p>
-      )}
     </>
   );
 }

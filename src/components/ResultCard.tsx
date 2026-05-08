@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { SimResult, UserStrategy, RaceData, Challenge, PositionChange, ButterflyEffect } from "@/engine/types";
 import { userStrategyToStints } from "@/engine/simulate";
 import { useI18n } from "@/i18n/context";
@@ -47,11 +47,13 @@ function formatMoment(pc: PositionChange, t: ReturnType<typeof useI18n>["t"]): s
   return `${icon} Lap ${pc.lap}: ${label} — ${detail}`;
 }
 
-function KeyMoments({ changes }: { changes: PositionChange[] }) {
+function KeyMoments({ changes, currentLap }: { changes: PositionChange[]; currentLap: number }) {
   const { t } = useI18n();
   const [expanded, setExpanded] = useState(false);
 
-  if (changes.length === 0) {
+  const visibleChanges = changes.filter((pc) => pc.lap <= currentLap);
+
+  if (visibleChanges.length === 0) {
     return (
       <div className="f1-card mb-4 text-left border-l-[3px] border-f1-red">
         <p className="f1-label text-f1-red mb-2">{t.result.keyMoments}</p>
@@ -60,15 +62,15 @@ function KeyMoments({ changes }: { changes: PositionChange[] }) {
     );
   }
 
-  const hasMore = changes.length > PREVIEW_COUNT;
-  const visible = expanded ? changes : changes.slice(0, PREVIEW_COUNT);
+  const hasMore = visibleChanges.length > PREVIEW_COUNT;
+  const visible = expanded ? visibleChanges : visibleChanges.slice(0, PREVIEW_COUNT);
 
   return (
     <div className="f1-card mb-4 text-left border-l-[3px] border-f1-red">
       <p className="f1-label text-f1-red mb-2">
         {t.result.keyMoments}
-        {changes.length > 1 && (
-          <span className="text-f1-grey/60 font-normal ml-1">({changes.length})</span>
+        {visibleChanges.length > 1 && (
+          <span className="text-f1-grey/60 font-normal ml-1">({visibleChanges.length})</span>
         )}
       </p>
       <div className="space-y-1">
@@ -83,7 +85,7 @@ function KeyMoments({ changes }: { changes: PositionChange[] }) {
           onClick={() => setExpanded(!expanded)}
           className="text-f1-red text-xs font-body font-bold mt-2 hover:underline"
         >
-          {expanded ? t.result.showLess : t.result.showAll(changes.length)}
+          {expanded ? t.result.showLess : t.result.showAll(visibleChanges.length)}
         </button>
       )}
     </div>
@@ -136,26 +138,57 @@ export default function ResultCard({
 
   const stints = userStrategyToStints(strategy, raceData.race.totalLaps);
 
+  const totalLaps = raceData.race.totalLaps;
+  const [currentLap, setCurrentLap] = useState(1);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    setCurrentLap(1);
+    const duration = Math.ceil(totalLaps / 10) * 2000;
+    let start: number | null = null;
+
+    function tick(ts: number) {
+      if (start === null) start = ts;
+      const elapsed = ts - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 2);
+      setCurrentLap(Math.max(1, Math.round(eased * totalLaps)));
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(tick);
+      }
+    }
+
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [totalLaps]);
+
+  const raceFinished = currentLap >= totalLaps;
+
+  const livePosition = (() => {
+    const dp = result.allPositionsPerLap.find((d) => d.driverId === challenge.driverId);
+    if (!dp) return result.finalPosition;
+    const idx = Math.min(currentLap - 1, dp.positions.length - 1);
+    return dp.positions[idx];
+  })();
+  const liveGain = result.originalPosition - livePosition;
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-6 py-6 sm:py-12">
       <div className="max-w-md w-full text-center">
-        <ScoreBadge tier={result.tier} />
+        <div className={`transition-opacity duration-700 ${raceFinished ? "opacity-100" : "opacity-0"}`}>
+          <ScoreBadge tier={result.tier} />
+        </div>
 
         <PositionHero
           from={result.originalPosition}
-          to={result.finalPosition}
-          positionsGained={result.positionsGained}
+          to={livePosition}
+          positionsGained={liveGain}
         />
 
-        <div className="mb-1 sm:mb-2">
-          <p className="f1-heading text-base sm:text-lg">{driver.name}</p>
-          <p className="text-f1-grey text-xs sm:text-sm font-body">
-            {raceData.race.name} {raceData.race.year}
-          </p>
-        </div>
-
         <div className="f1-card mb-4 text-left">
-          <p className="f1-label mb-2">{t.result.yourStrategy}</p>
+          <p className="f1-label mb-2">{driver.name} / {raceData.race.name} {raceData.race.year}<br />{t.result.yourStrategy}</p>
           <TireBar stints={stints} totalLaps={raceData.race.totalLaps} />
           <p className="text-f1-grey text-xs font-body mt-2">
             {stints
@@ -167,21 +200,24 @@ export default function ResultCard({
           </p>
         </div>
 
-        <KeyMoments changes={result.positionChanges} />
-
         <PositionChart
           allPositionsPerLap={result.allPositionsPerLap}
           challengeDriverId={challenge.driverId}
           raceData={raceData}
           pitLaps={strategy.pitLaps}
           compounds={strategy.compounds}
+          currentLap={currentLap}
         />
 
         <StandingsComparison
           allDriverResults={result.allDriverResults}
+          allPositionsPerLap={result.allPositionsPerLap}
           challengeDriverId={challenge.driverId}
           raceData={raceData}
+          currentLap={currentLap}
         />
+
+        <KeyMoments changes={result.positionChanges} currentLap={currentLap} />
 
         {result.butterflyEffect && (
           <ButterflyEffectCard effect={result.butterflyEffect} />

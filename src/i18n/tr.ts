@@ -40,6 +40,7 @@ const tr: Translations = {
       `+${n} pozisyon kazanıldı`,
     positionsLost: (n: number) =>
       `${n} pozisyon kaybedildi`,
+    noChange: "Değişiklik yok",
     yourStrategy: "Stratejin",
     keyMoments: "Önemli Anlar",
     showAll: (n: number) => `Tüm ${n} anı göster`,

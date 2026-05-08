@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -19,6 +19,7 @@ type Props = {
   raceData: RaceData;
   pitLaps: number[];
   compounds: Compound[];
+  currentLap?: number;
 };
 
 const MAX_SELECTED = 10;
@@ -86,10 +87,12 @@ export default function PositionChart({
   raceData,
   pitLaps,
   compounds,
+  currentLap: currentLapProp,
 }: Props) {
   const { t } = useI18n();
   const driverMap = new Map(raceData.drivers.map((d) => [d.id, d]));
   const pitMap = buildPitMap(raceData, challengeDriverId, pitLaps, compounds);
+  const currentLap = currentLapProp ?? raceData.race.totalLaps;
 
   const sortedByFinish = allPositionsPerLap
     .filter((d) => d.driverId !== challengeDriverId)
@@ -152,37 +155,11 @@ export default function PositionChart({
     return point;
   });
 
-  const [visibleCount, setVisibleCount] = useState(1);
-  const rafRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    setVisibleCount(1);
-    const total = data.length;
-    if (total <= 1) return;
-    const duration = Math.ceil(totalLaps / 10) * 2000;
-    let start: number | null = null;
-
-    function tick(ts: number) {
-      if (start === null) start = ts;
-      const elapsed = ts - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 2);
-      const count = Math.max(1, Math.round(eased * total));
-      setVisibleCount(count);
-      if (progress < 1) {
-        rafRef.current = requestAnimationFrame(tick);
-      }
-    }
-
-    rafRef.current = requestAnimationFrame(tick);
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, [data.length]);
-
-  const animating = visibleCount < data.length;
-  const visibleData = data.slice(0, visibleCount);
-  const currentLap = visibleData[visibleData.length - 1]?.lap ?? 1;
+  const visibleData = useMemo(
+    () => data.filter((d) => d.lap <= currentLap),
+    [data, currentLap]
+  );
+  const animating = currentLap < totalLaps;
 
   const selectedDrivers = allPositionsPerLap.filter((d) =>
     selected.has(d.driverId)

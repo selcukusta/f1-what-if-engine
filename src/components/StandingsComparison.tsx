@@ -6,14 +6,18 @@ import { useI18n } from "@/i18n/context";
 
 type Props = {
   allDriverResults: { driverId: string; finalPosition: number }[];
+  allPositionsPerLap?: { driverId: string; positions: number[] }[];
   challengeDriverId: string;
   raceData: RaceData;
+  currentLap?: number;
 };
 
 export default function StandingsComparison({
   allDriverResults,
+  allPositionsPerLap,
   challengeDriverId,
   raceData,
+  currentLap,
 }: Props) {
   const { t } = useI18n();
   const [expanded, setExpanded] = useState(false);
@@ -37,9 +41,18 @@ export default function StandingsComparison({
     return [...raceData.drivers].sort((a, b) => a.gridPosition - b.gridPosition);
   }, [raceData, driverMap]);
 
+  const liveResults = useMemo(() => {
+    if (!allPositionsPerLap || currentLap == null) return allDriverResults;
+    const lapIdx = Math.min(currentLap - 1, (allPositionsPerLap[0]?.positions.length ?? 1) - 1);
+    return allPositionsPerLap.map((dp) => ({
+      driverId: dp.driverId,
+      finalPosition: dp.positions[lapIdx] ?? 20,
+    }));
+  }, [allDriverResults, allPositionsPerLap, currentLap]);
+
   const { simByPosition, actualMap, finisherCount } = useMemo(() => {
     const posMap = new Map<number, { driverId: string; finalPosition: number }>();
-    for (const entry of allDriverResults) {
+    for (const entry of liveResults) {
       posMap.set(entry.finalPosition, entry);
     }
     const aMap = new Map<string, number>();
@@ -52,7 +65,7 @@ export default function StandingsComparison({
       }
     }
     return { simByPosition: posMap, actualMap: aMap, finisherCount: fCount };
-  }, [allDriverResults, actualOrderDrivers, dnfIds]);
+  }, [liveResults, actualOrderDrivers, dnfIds]);
 
   const driverCount = actualOrderDrivers.length;
   const displayCount = expanded ? driverCount : Math.min(10, driverCount);

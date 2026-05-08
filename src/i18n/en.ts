@@ -40,6 +40,7 @@ const en: Translations = {
       `+${n} position${Math.abs(n) !== 1 ? "s" : ""} gained`,
     positionsLost: (n: number) =>
       `${n} position${Math.abs(n) !== 1 ? "s" : ""} lost`,
+    noChange: "No change",
     yourStrategy: "Your Strategy",
     keyMoments: "Key Moments",
     showAll: (n: number) => `Show all ${n} moments`,

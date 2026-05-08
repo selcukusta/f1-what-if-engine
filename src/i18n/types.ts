@@ -35,6 +35,7 @@ export type Translations = {
     now: string;
     positionsGained: (n: number) => string;
     positionsLost: (n: number) => string;
+    noChange: string;
     yourStrategy: string;
     keyMoments: string;
     showAll: (n: number) => string;
