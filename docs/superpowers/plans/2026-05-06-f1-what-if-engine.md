@@ -63,7 +63,7 @@ f1-what-if-engine/
 - [ ] **Step 1: Initialize Next.js project**
 
 ```bash
-cd /Users/selcuk.usta/Repositories/_Code/f1-what-if-engine
+cd f1-what-if-engine
 npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --no-import-alias --use-npm
 ```
 
