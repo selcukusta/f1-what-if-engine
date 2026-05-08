@@ -137,7 +137,7 @@ export default function ResultCard({
   const stints = userStrategyToStints(strategy, raceData.race.totalLaps);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-6 py-12">
+    <div className="flex flex-col items-center justify-center min-h-screen px-6 py-6 sm:py-12">
       <div className="max-w-md w-full text-center">
         <ScoreBadge tier={result.tier} />
 
@@ -147,9 +147,9 @@ export default function ResultCard({
           positionsGained={result.positionsGained}
         />
 
-        <div className="mb-2">
-          <p className="f1-heading text-lg">{driver.name}</p>
-          <p className="text-f1-grey text-sm font-body">
+        <div className="mb-1 sm:mb-2">
+          <p className="f1-heading text-base sm:text-lg">{driver.name}</p>
+          <p className="text-f1-grey text-xs sm:text-sm font-body">
             {raceData.race.name} {raceData.race.year}
           </p>
         </div>
@@ -169,6 +169,20 @@ export default function ResultCard({
 
         <KeyMoments changes={result.positionChanges} />
 
+        <PositionChart
+          allPositionsPerLap={result.allPositionsPerLap}
+          challengeDriverId={challenge.driverId}
+          raceData={raceData}
+          pitLaps={strategy.pitLaps}
+          compounds={strategy.compounds}
+        />
+
+        <StandingsComparison
+          allDriverResults={result.allDriverResults}
+          challengeDriverId={challenge.driverId}
+          raceData={raceData}
+        />
+
         {result.butterflyEffect && (
           <ButterflyEffectCard effect={result.butterflyEffect} />
         )}
@@ -177,20 +191,6 @@ export default function ResultCard({
           <p className="f1-label mb-1">{t.result.score}</p>
           <p className="f1-number text-4xl">{result.score}</p>
         </div>
-
-        <StandingsComparison
-          allDriverResults={result.allDriverResults}
-          challengeDriverId={challenge.driverId}
-          raceData={raceData}
-        />
-
-        <PositionChart
-          allPositionsPerLap={result.allPositionsPerLap}
-          challengeDriverId={challenge.driverId}
-          raceData={raceData}
-          pitLaps={strategy.pitLaps}
-          compounds={strategy.compounds}
-        />
 
         <div className="flex gap-3 max-w-xs mx-auto">
           <button onClick={onShare} className="f1-button flex-1">
