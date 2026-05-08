@@ -159,7 +159,3 @@ No environment variables or special configuration required. The OG image route r
 ## License
 
 MIT
-
----
-
-[github.com/selcukusta/f1-what-if-engine](https://github.com/selcukusta/f1-what-if-engine)
