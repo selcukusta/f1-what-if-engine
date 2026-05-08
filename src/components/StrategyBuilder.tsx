@@ -15,7 +15,9 @@ import TireBar from "./TireBar";
 type Props = {
   challenge: Challenge;
   raceData: RaceData;
+  initialStrategy?: UserStrategy | null;
   onSimulate: (strategy: UserStrategy) => void;
+  onReset?: () => void;
 };
 
 const COMPOUNDS: Compound[] = ["soft", "medium", "hard"];
@@ -23,16 +25,30 @@ const COMPOUNDS: Compound[] = ["soft", "medium", "hard"];
 export default function StrategyBuilder({
   challenge,
   raceData,
+  initialStrategy,
   onSimulate,
+  onReset,
 }: Props) {
   const { locale, t } = useI18n();
   const { totalLaps } = raceData.race;
-  const [startCompound, setStartCompound] = useState<Compound>("soft");
-  const [pit1Lap, setPit1Lap] = useState(20);
-  const [pit1Compound, setPit1Compound] = useState<Compound>("hard");
-  const [hasPit2, setHasPit2] = useState(false);
-  const [pit2Lap, setPit2Lap] = useState(50);
-  const [pit2Compound, setPit2Compound] = useState<Compound>("medium");
+  const [startCompound, setStartCompound] = useState<Compound>(
+    initialStrategy?.compounds[0] ?? "soft"
+  );
+  const [pit1Lap, setPit1Lap] = useState(
+    initialStrategy?.pitLaps[0] ?? 20
+  );
+  const [pit1Compound, setPit1Compound] = useState<Compound>(
+    initialStrategy?.compounds[1] ?? "hard"
+  );
+  const [hasPit2, setHasPit2] = useState(
+    (initialStrategy?.pitLaps.length ?? 0) >= 2
+  );
+  const [pit2Lap, setPit2Lap] = useState(
+    initialStrategy?.pitLaps[1] ?? 50
+  );
+  const [pit2Compound, setPit2Compound] = useState<Compound>(
+    initialStrategy?.compounds[2] ?? "medium"
+  );
 
   const strategy = useMemo<UserStrategy>(() => {
     if (hasPit2) {
@@ -46,6 +62,18 @@ export default function StrategyBuilder({
       compounds: [startCompound, pit1Compound],
     };
   }, [startCompound, pit1Lap, pit1Compound, hasPit2, pit2Lap, pit2Compound]);
+
+  function resetToDefaults() {
+    setStartCompound("soft");
+    setPit1Lap(20);
+    setPit1Compound("hard");
+    setHasPit2(false);
+    setPit2Lap(50);
+    setPit2Compound("medium");
+    onReset?.();
+  }
+
+  const isModified = initialStrategy != null;
 
   const errors = useMemo(
     () => validateStrategy(strategy, challenge, totalLaps, t),
@@ -287,6 +315,14 @@ export default function StrategyBuilder({
         >
           {t.strategy.simulateButton}
         </button>
+        {isModified && (
+          <button
+            onClick={resetToDefaults}
+            className="mt-2 w-full text-f1-grey text-xs font-body font-bold uppercase tracking-wider hover:text-white transition-colors"
+          >
+            {t.strategy.resetButton}
+          </button>
+        )}
       </div>
     </div>
   );

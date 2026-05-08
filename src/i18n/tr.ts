@@ -30,6 +30,7 @@ const tr: Translations = {
     addStop: "Ekle",
     enabled: "Aktif",
     simulateButton: "Yarışı Simüle Et →",
+    resetButton: "Sıfırla",
   },
 
   result: {

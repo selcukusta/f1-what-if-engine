@@ -27,6 +27,7 @@ export type Translations = {
     addStop: string;
     enabled: string;
     simulateButton: string;
+    resetButton: string;
   };
 
   result: {

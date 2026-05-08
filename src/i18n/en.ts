@@ -30,6 +30,7 @@ const en: Translations = {
     addStop: "Add Stop",
     enabled: "Enabled",
     simulateButton: "Simulate Race →",
+    resetButton: "Reset to Default",
   },
 
   result: {

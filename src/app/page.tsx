@@ -23,6 +23,17 @@ export default function Home() {
   const [simResult, setSimResult] = useState<SimResult | null>(null);
 
   const challenge = activeChallenge;
+
+  const lastStrategy = useMemo(() => {
+    if (userStrategy) return userStrategy;
+    if (!challenge) return null;
+    try {
+      const saved = localStorage.getItem(`strategy:${challenge.id}`);
+      return saved ? (JSON.parse(saved) as UserStrategy) : null;
+    } catch {
+      return null;
+    }
+  }, [userStrategy, challenge]);
   const raceData = useMemo(
     () => (challenge ? getRaceDataForChallenge(challenge) : null),
     [challenge]
@@ -64,12 +75,22 @@ export default function Home() {
     setUserStrategy(strategy);
     setSimResult(result);
     setView("result");
+    try {
+      localStorage.setItem(`strategy:${challenge.id}`, JSON.stringify(strategy));
+    } catch {}
+
   }
 
   function handleRetry() {
     setSimResult(null);
-    setUserStrategy(null);
     setView("strategy");
+  }
+
+  function handleResetStrategy() {
+    setUserStrategy(null);
+    try {
+      localStorage.removeItem(`strategy:${challenge.id}`);
+    } catch {}
   }
 
   function handleShare() {
@@ -284,9 +305,12 @@ export default function Home() {
     case "strategy":
       return (
         <StrategyBuilder
+          key={lastStrategy ? "restore" : "fresh"}
           challenge={challenge}
           raceData={raceData}
+          initialStrategy={lastStrategy}
           onSimulate={handleSimulate}
+          onReset={handleResetStrategy}
         />
       );
     case "result":
