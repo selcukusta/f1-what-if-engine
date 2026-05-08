@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   LineChart,
   Line,
@@ -152,6 +152,38 @@ export default function PositionChart({
     return point;
   });
 
+  const [visibleCount, setVisibleCount] = useState(1);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    setVisibleCount(1);
+    const total = data.length;
+    if (total <= 1) return;
+    const duration = Math.ceil(totalLaps / 10) * 1000;
+    let start: number | null = null;
+
+    function tick(ts: number) {
+      if (start === null) start = ts;
+      const elapsed = ts - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 2);
+      const count = Math.max(1, Math.round(eased * total));
+      setVisibleCount(count);
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(tick);
+      }
+    }
+
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [data.length]);
+
+  const animating = visibleCount < data.length;
+  const visibleData = data.slice(0, visibleCount);
+  const currentLap = visibleData[visibleData.length - 1]?.lap ?? 1;
+
   const selectedDrivers = allPositionsPerLap.filter((d) =>
     selected.has(d.driverId)
   );
@@ -176,14 +208,20 @@ export default function PositionChart({
     <div className="f1-card mb-6 text-left">
       <p className="f1-label mb-3">{t.chart.title}</p>
 
-      <div className="w-full h-56">
+      <div className="w-full h-56 relative">
+        {animating && (
+          <div className="absolute top-1 right-2 z-10 f1-number text-lg text-white/20">
+            L{currentLap}
+          </div>
+        )}
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -20 }}>
+          <LineChart data={visibleData} margin={{ top: 8, right: 8, bottom: 0, left: -20 }}>
             <XAxis
               dataKey="lap"
               tick={{ fontSize: 9, fill: "#6b7280" }}
               tickLine={false}
               axisLine={{ stroke: "#333" }}
+              domain={[1, data[data.length - 1]?.lap ?? totalLaps]}
               interval={data.length > 12 ? Math.floor(data.length / 8) : 0}
               label={{ value: "Lap", position: "insideBottomRight", offset: -4, fontSize: 9, fill: "#6b7280" }}
             />
@@ -223,6 +261,7 @@ export default function PositionChart({
                   activeDot={{ r: 4 }}
                   strokeDasharray={isChallenge ? undefined : "4 2"}
                   opacity={isChallenge ? 1 : 0.7}
+                  isAnimationActive={false}
                 />
               );
             })}
